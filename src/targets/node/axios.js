@@ -62,12 +62,12 @@ module.exports = function (source, options) {
 
   const requestOptions = {
     method: `${source.method}`,
+    url: `${source.url}`,
     headers: {
       'content-type': `${source.postData.mimeType}`,
       ...(Object.keys(source.headersObj).length && source.headersObj)
     },
-    params: Object.keys(source.queryObj).length ? source.queryObj : undefined,
-    url: `${source.url}`
+    params: Object.keys(source.queryObj).length ? source.queryObj : undefined
   };
   const { postData } = source
   const { mimeType } = postData
