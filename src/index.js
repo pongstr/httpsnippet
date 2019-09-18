@@ -126,25 +126,19 @@ HTTPSnippet.prototype.prepare = function (request) {
 
       if (request.postData.params) {
         var form = new MultiPartForm()
-
         request.postData.params.forEach(function (param) {
-          const { value } = param || ''
-          form.append(param.name,
-            typeof value === 'string'
-              ? new Blob([value])
-              : value
-            , {
-              filename: param.fileName || null,
-              contentType: param.contentType || null
-            })
+          form.append(param.name, param.value || '', {
+            filename: param.fileName || null,
+            contentType: param.contentType || null
+          })
         })
 
         //         form.pipe(es.map(function (data, cb) {
         //           request.postData.text += data
         //         }))
 
-        request.postData.boundary = this.getBoundary()
-        request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
+        // request.postData.boundary = this.getBoundary()
+        request.headersObj['content-type'] = 'multipart/form-data'
       }
       break
 
