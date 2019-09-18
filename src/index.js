@@ -127,9 +127,6 @@ HTTPSnippet.prototype.prepare = function (request) {
       if (request.postData.params) {
         var form = new MultiPartForm()
 
-        // easter egg
-        this._boundary = '---011000010111000001101001'
-
         request.postData.params.forEach(function (param) {
           form.append(param.name, param.value || '', {
             filename: param.fileName || null,
