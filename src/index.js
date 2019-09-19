@@ -129,10 +129,7 @@ HTTPSnippet.prototype.prepare = function (request) {
 
         request.postData.params.forEach((param) => {
           console.log(param)
-          form.append(param.name, param.value || '', {
-            filename: param.fileName || null,
-            contentType: param.contentType || null
-          })
+          form.append(param.name, param.value || '')
         })
 
         //         form.pipe(es.map(function (data, cb) {
