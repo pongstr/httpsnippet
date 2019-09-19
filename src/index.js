@@ -132,9 +132,9 @@ HTTPSnippet.prototype.prepare = function (request) {
           form.append(param.name, param.value || '')
         })
 
-        //         form.pipe(es.map(function (data, cb) {
-        //           request.postData.text += data
-        //         }))
+        form.pipe(es.map(function (data, cb) {
+          request.postData.text += data
+        }))
 
         // request.postData.boundary = this.getBoundary()
         // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
