@@ -72,7 +72,8 @@ module.exports = function (source, options) {
 
           part.body = 'fs.createReadStream("' + param.fileName + '")'
         } else if (param.value) {
-          part.body = param.value
+          const { name } = param || 'body'
+          part[name] = param.value
         }
 
         if (part.body) {
@@ -83,7 +84,6 @@ module.exports = function (source, options) {
           multipart.push(part)
         }
       })
-      console.log('unirest.js 86', multipart)
       code.push('req.multipart(%s);', JSON.stringify(multipart, null, opts.indent))
       break
 
