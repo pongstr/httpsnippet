@@ -82,7 +82,7 @@ module.exports = function (source, options) {
           multipart.push(part)
         }
       })
-
+      console.log()
       code.push('req.multipart(%s);', JSON.stringify(multipart, null, opts.indent))
       break
 
