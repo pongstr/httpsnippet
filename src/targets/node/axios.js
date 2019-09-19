@@ -72,7 +72,7 @@ module.exports = function (source, options) {
   const { postData } = source
   const { mimeType } = postData
   const [data, includeFS] = contentBodyFactory(mimeType, postData)
-  if (data) {
+  if (Object.keys(data).length > 0) {
     requestOptions['data'] = data
   }
   if (includeFS) {
