@@ -21,9 +21,9 @@ module.exports = function (source, options) {
   var code = new CodeBuilder(opts.indent)
 
   code.push('var unirest = require("unirest");')
-      .blank()
-      .push('var req = unirest("%s", "%s");', source.method, source.url)
-      .blank()
+    .blank()
+    .push('var req = unirest("%s", "%s");', source.method, source.url)
+    .blank()
 
   if (source.cookies.length) {
     code.push('var CookieJar = unirest.jar();')
@@ -33,17 +33,17 @@ module.exports = function (source, options) {
     })
 
     code.push('req.jar(CookieJar);')
-        .blank()
+      .blank()
   }
 
   if (Object.keys(source.queryObj).length) {
     code.push('req.query(%s);', JSON.stringify(source.queryObj, null, opts.indent))
-        .blank()
+      .blank()
   }
 
   if (Object.keys(source.headersObj).length) {
     code.push('req.headers(%s);', JSON.stringify(source.headersObj, null, opts.indent))
-        .blank()
+      .blank()
   }
 
   switch (source.postData.mimeType) {
@@ -56,7 +56,7 @@ module.exports = function (source, options) {
     case 'application/json':
       if (source.postData.jsonObj) {
         code.push('req.type("json");')
-            .push('req.send(%s);', JSON.stringify(source.postData.jsonObj, null, opts.indent))
+          .push('req.send(%s);', JSON.stringify(source.postData.jsonObj, null, opts.indent))
       }
       break
 
@@ -64,6 +64,7 @@ module.exports = function (source, options) {
       var multipart = []
 
       source.postData.params.forEach(function (param) {
+        console.log('unirest.js 67', param)
         var part = {}
 
         if (param.fileName && !param.value) {
@@ -82,7 +83,7 @@ module.exports = function (source, options) {
           multipart.push(part)
         }
       })
-      console.log()
+      console.log('unirest.js 86', multipart)
       code.push('req.multipart(%s);', JSON.stringify(multipart, null, opts.indent))
       break
 
@@ -97,12 +98,12 @@ module.exports = function (source, options) {
   }
 
   code.blank()
-      .push('req.end(function (res) {')
-      .push(1, 'if (res.error) throw new Error(res.error);')
-      .blank()
-      .push(1, 'console.log(res.body);')
-      .push('});')
-      .blank()
+    .push('req.end(function (res) {')
+    .push(1, 'if (res.error) throw new Error(res.error);')
+    .blank()
+    .push(1, 'console.log(res.body);')
+    .push('});')
+    .blank()
 
   return code.join().replace(/"fs\.createReadStream\(\\"(.+)\\"\)"/, 'fs.createReadStream("$1")')
 }
