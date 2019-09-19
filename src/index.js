@@ -127,7 +127,8 @@ HTTPSnippet.prototype.prepare = function (request) {
       if (request.postData.params) {
         var form = new MultiPartForm()
 
-        request.postData.params.forEach(function (param) {
+        request.postData.params.forEach((param) => {
+          console.log(param)
           form.append(param.name, param.value || '', {
             filename: param.fileName || null,
             contentType: param.contentType || null
