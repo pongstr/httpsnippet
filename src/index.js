@@ -128,7 +128,6 @@ HTTPSnippet.prototype.prepare = function (request) {
         var form = new MultiPartForm()
 
         request.postData.params.forEach((param) => {
-          console.log(param)
           form.append(param.name, param.value || '')
         })
 
@@ -139,7 +138,6 @@ HTTPSnippet.prototype.prepare = function (request) {
         // request.postData.boundary = this.getBoundary()
         // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
         request.headersObj['content-type'] = 'multipart/form-data'
-        console.log(form)
       }
       break
 

@@ -64,19 +64,18 @@ module.exports = function (source, options) {
       var multipart = []
 
       source.postData.params.forEach(function (param) {
-        console.log('unirest.js 67', param)
         var part = {}
-
+        const { name } = param || 'body'
         if (param.fileName && !param.value) {
           includeFS = true
 
-          part.body = 'fs.createReadStream("' + param.fileName + '")'
+          part[name] = 'fs.createReadStream("' + param.fileName + '")'
         } else if (param.value) {
-          const { name } = param || 'body'
+
           part[name] = param.value
         }
 
-        if (part.body) {
+        if (part[name]) {
           if (param.contentType) {
             part['content-type'] = param.contentType
           }
