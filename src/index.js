@@ -136,8 +136,9 @@ HTTPSnippet.prototype.prepare = function (request) {
         //           request.postData.text += data
         //         }))
 
-        request.postData.boundary = this.getBoundary()
-        request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
+        // request.postData.boundary = this.getBoundary()
+        // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
+        request.headersObj['content-type'] = 'multipart/form-data'
       }
       break
 
