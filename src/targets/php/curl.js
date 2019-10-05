@@ -47,6 +47,10 @@ module.exports = function (source, options) {
     name: 'CURLOPT_RETURNTRANSFER',
     value: 'true'
   }, {
+    escape: false,
+    name: 'CURLOPT_FOLLOWLOCATION',
+    value: 'true'
+  }, {
     escape: true,
     name: 'CURLOPT_ENCODING',
     value: ''
