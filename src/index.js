@@ -35,7 +35,9 @@ var HTTPSnippet = function (data) {
     entry.request.headers = entry.request.headers || []
     entry.request.cookies = entry.request.cookies || []
     entry.request.postData = entry.request.postData || {}
-    entry.request.postData.mimeType = entry.request.postData.mimeType || 'application/octet-stream'
+    if (entry.request.postData.mimeType) {
+      entry.request.postData.mimeType = entry.request.postData.mimeType
+    }
 
     entry.request.bodySize = 0
     entry.request.headersSize = 0
