@@ -122,7 +122,7 @@ HTTPSnippet.prototype.prepare = function (request) {
     case 'multipart/alternative':
       // reset values
       request.postData.text = ''
-      request.postData.mimeType = 'multipart/form-data'
+      // request.postData.mimeType = 'multipart/form-data'
 
       if (request.postData.params) {
         var form = new MultiPartForm()
@@ -137,7 +137,7 @@ HTTPSnippet.prototype.prepare = function (request) {
 
         // request.postData.boundary = this.getBoundary()
         // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
-        request.headersObj['content-type'] = 'multipart/form-data'
+        request.headersObj['Content-Type'] = request.postData.mimeType
       }
       break
 
