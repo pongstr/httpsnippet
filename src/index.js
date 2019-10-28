@@ -117,7 +117,7 @@ HTTPSnippet.prototype.prepare = function (request) {
   if (cookies.length) {
     request.allHeaders.cookie = cookies.join('; ')
   }
-
+  console.log(request)
   switch (request.postData.mimeType) {
     case 'multipart/mixed':
     case 'multipart/related':
