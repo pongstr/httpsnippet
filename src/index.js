@@ -8,7 +8,7 @@ var reducer = require('./helpers/reducer')
 var targets = require('./targets')
 var url = require('url')
 var validate = require('har-validator/lib/async')
-
+const get = require('lodash/get')
 // constructor
 var HTTPSnippet = function (data) {
   var entries
@@ -117,7 +117,12 @@ HTTPSnippet.prototype.prepare = function (request) {
   if (cookies.length) {
     request.allHeaders.cookie = cookies.join('; ')
   }
-  console.log(request)
+  let contentType
+  const headers = get(request, 'headers')
+  if (headers && headers.length > 0) {
+    contentHeader = headers.find(header => header.name === 'Content-Type')
+    contentType = get(contentHeader, 'value')
+  }
   switch (request.postData.mimeType) {
     case 'multipart/mixed':
     case 'multipart/related':
@@ -140,7 +145,7 @@ HTTPSnippet.prototype.prepare = function (request) {
 
         // request.postData.boundary = this.getBoundary()
         // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
-        request.headersObj['content-type'] = request.postData.mimeType
+        request.headersObj['content-type'] = contentType || request.postData.mimeType || 'application/octet-stream'
       }
       break
 
