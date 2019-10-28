@@ -35,9 +35,10 @@ var HTTPSnippet = function (data) {
     entry.request.headers = entry.request.headers || []
     entry.request.cookies = entry.request.cookies || []
     entry.request.postData = entry.request.postData || {}
-    if (entry.request.postData.mimeType) {
-      entry.request.postData.mimeType = entry.request.postData.mimeType
-    }
+    // if (entry.request.postData.mimeType) {
+    //   entry.request.postData.mimeType = entry.request.postData.mimeType
+    // }
+    entry.request.postData.mimeType = entry.request.postData.mimeType || 'application/octet-stream'
 
     entry.request.bodySize = 0
     entry.request.headersSize = 0
@@ -139,7 +140,7 @@ HTTPSnippet.prototype.prepare = function (request) {
 
         // request.postData.boundary = this.getBoundary()
         // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
-        request.headersObj['content-type'] = request.postData.mimeType
+        request.headersObj['content-type'] = request.postData.mimeType || 'multipart/form-data'
       }
       break
 
