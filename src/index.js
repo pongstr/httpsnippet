@@ -123,7 +123,6 @@ HTTPSnippet.prototype.prepare = function (request) {
     const contentHeader = headers.find(header => header.name === 'Content-Type' || header.name === 'content-type')
     contentType = get(contentHeader, 'value')
   }
-  console.log({ contentType, headers })
   switch (request.postData.mimeType) {
     case 'multipart/mixed':
     case 'multipart/related':
