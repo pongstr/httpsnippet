@@ -120,7 +120,7 @@ HTTPSnippet.prototype.prepare = function (request) {
   let contentType
   const headers = get(request, 'headers')
   if (headers && headers.length > 0) {
-    const contentHeader = headers.find(header => header.name === 'Content-Type')
+    const contentHeader = headers.find(header => header.name === 'Content-Type' || header.name === 'content-type')
     contentType = get(contentHeader, 'value')
   }
   switch (request.postData.mimeType) {
