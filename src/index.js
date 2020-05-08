@@ -136,9 +136,22 @@ HTTPSnippet.prototype.prepare = function (request) {
 
       if (request.postData.params) {
         var form = new MultiPartForm()
+        const reader = new FileReader()
 
         request.postData.params.forEach((param) => {
-          form.append(param.name, param.value || '')
+          if (param && param.value && param.value instanceof Blob) {
+            // This fires after the blob has been read/loaded.
+            reader.addEventListener('loadend', (e) => {
+              const text = e.srcElement.result;
+              form.append(param.name, text || '')  
+            });
+
+            // Start reading the blob as text.
+            reader.readAsText(blb);
+          } else {
+            form.append(param.name, param.value || '')  
+          }
+          
         })
 
         console.log({es})
