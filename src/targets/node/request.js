@@ -35,7 +35,7 @@ module.exports = function (source, options) {
   }
 
   if (Object.keys(source.headersObj).length) {
-    reqOpts.headers = {...source.headersObj,useQueryString: true}
+    reqOpts.headers = {...source.headersObj,'useQueryString': true}
   }
 
   switch (source.postData.mimeType) {
