@@ -15,7 +15,7 @@ var HTTPSnippet = function (data) {
   var self = this
   var input = Object.assign({}, data)
   var boundary
-
+  console.log({data})
   // prep the main container
   self.requests = []
 
