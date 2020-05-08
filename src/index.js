@@ -123,7 +123,6 @@ HTTPSnippet.prototype.prepare = function (request) {
     const contentHeader = headers.find(header => header.name === 'Content-Type' || header.name === 'content-type')
     contentType = get(contentHeader, 'value')
   }
-
   switch (request.postData.mimeType) {
     case 'multipart/mixed':
     case 'multipart/related':
@@ -141,13 +140,13 @@ HTTPSnippet.prototype.prepare = function (request) {
         })
 
         console.log({form})
-        form.pipe(es.map(function (data, cb) {
-          request.postData.text += data
-        }))
+        // form.pipe(es.map(function (data, cb) {
+        //   request.postData.text += data
+        // }))
 
-        request.postData.boundary = this.getBoundary()
-        request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
-        // request.headersObj['content-type'] = contentType || request.postData.mimeType || 'application/octet-stream'
+        // request.postData.boundary = this.getBoundary()
+        // request.headersObj['content-type'] = 'multipart/form-data; boundary=' + this.getBoundary()
+        request.headersObj['content-type'] = contentType || request.postData.mimeType || 'application/octet-stream'
       }
       break
 
