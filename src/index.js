@@ -140,8 +140,8 @@ HTTPSnippet.prototype.prepare = function (request) {
           form.append(param.name, param.value || '')
         })
 
+        console.log({form})
         form.pipe(es.map(function (data, cb) {
-          console.log({data})
           request.postData.text += data
         }))
 
