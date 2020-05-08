@@ -119,10 +119,12 @@ HTTPSnippet.prototype.prepare = function (request) {
   }
   let contentType
   const headers = get(request, 'headers')
+
   if (headers && headers.length > 0) {
     const contentHeader = headers.find(header => header.name === 'Content-Type' || header.name === 'content-type')
     contentType = get(contentHeader, 'value')
   }
+
   switch (request.postData.mimeType) {
     case 'multipart/mixed':
     case 'multipart/related':
@@ -138,6 +140,8 @@ HTTPSnippet.prototype.prepare = function (request) {
         request.postData.params.forEach((param) => {
           form.append(param.name, param.value || '')
         })
+
+        console.log({es})
 
         form.pipe(es.map(function (data, cb) {
           request.postData.text += data
