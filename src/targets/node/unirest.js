@@ -16,7 +16,7 @@ module.exports = function (source, options) {
   var opts = Object.assign({
     indent: '  '
   }, options)
-
+  console.log({source})
   var includeFS = false
   var code = new CodeBuilder(opts.indent)
 

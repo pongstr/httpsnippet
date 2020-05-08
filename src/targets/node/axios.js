@@ -54,7 +54,7 @@ module.exports = function (source, options) {
     indent: '  '
   }, options)
 
-
+  console.log({source})
   let code = new CodeBuilder(opts.indent)
 
   code.push('const axios = require("axios");')

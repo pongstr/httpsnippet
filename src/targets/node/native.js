@@ -17,7 +17,7 @@ module.exports = function (source, options) {
   var opts = Object.assign({
     indent: '  '
   }, options)
-
+  console.log({source})
   var code = new CodeBuilder(opts.indent)
 
   var reqOpts = {
