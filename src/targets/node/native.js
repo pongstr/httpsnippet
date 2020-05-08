@@ -17,7 +17,7 @@ module.exports = function (source, options) {
   var opts = Object.assign({
     indent: '  '
   }, options)
-  console.log({source})
+ 
   var code = new CodeBuilder(opts.indent)
 
   var reqOpts = {
@@ -25,7 +25,7 @@ module.exports = function (source, options) {
     hostname: source.uriObj.hostname,
     port: source.uriObj.port,
     path: source.uriObj.path,
-    headers: source.allHeaders
+    headers: { ...source.allHeaders, useQueryString: true }
   }
 
   code.push('var http = require("%s");', source.uriObj.protocol.replace(':', ''))

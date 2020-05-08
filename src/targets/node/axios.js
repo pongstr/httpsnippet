@@ -54,7 +54,6 @@ module.exports = function (source, options) {
     indent: '  '
   }, options)
 
-  console.log({source})
   let code = new CodeBuilder(opts.indent)
 
   code.push('const axios = require("axios");')
@@ -65,7 +64,8 @@ module.exports = function (source, options) {
     url: `${source.url}`,
     headers: {
       'content-type': `${source.postData.mimeType}`,
-      ...(Object.keys(source.headersObj).length && source.headersObj)
+      ...(Object.keys(source.headersObj).length && source.headersObj),
+      'useQueryString': true
     },
     params: Object.keys(source.queryObj).length ? source.queryObj : undefined
   };

@@ -18,7 +18,7 @@ module.exports = function (source, options) {
   var opts = Object.assign({
     indent: '  '
   }, options)
-  console.log({source})
+
   var includeFS = false
   var code = new CodeBuilder(opts.indent)
 
@@ -35,7 +35,7 @@ module.exports = function (source, options) {
   }
 
   if (Object.keys(source.headersObj).length) {
-    reqOpts.headers = source.headersObj
+    reqOpts.headers = {...source.headersObj,useQueryString: true}
   }
 
   switch (source.postData.mimeType) {
