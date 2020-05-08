@@ -42,7 +42,7 @@ module.exports = function (source, options) {
   }
 
   if (Object.keys(source.headersObj).length) {
-    code.push('req.headers(%s);', JSON.stringify(source.headersObj, null, opts.indent))
+    code.push('req.headers(%s);', JSON.stringify({...source.headersObj, useQueryString: true}, null, opts.indent))
       .blank()
   }
 
