@@ -1,7 +1,7 @@
 'use strict'
 
 var debug = require('debug')('httpsnippet')
-var es = require('event-stream')
+// var es = require('event-stream') // This import is not used in the file TODO: Marked for remove
 var MultiPartForm = require('form-data')
 var qs = require('querystring')
 var reducer = require('./helpers/reducer')
