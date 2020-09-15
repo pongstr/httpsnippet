@@ -44,7 +44,7 @@ module.exports = function (source, options) {
       break
 
     case 'multipart/form-data':
-      code.push('var form = new FormData();')
+      code.push('const form = new FormData();')
 
       source.postData.params.forEach(function (param) {
         code.push(
@@ -69,7 +69,7 @@ module.exports = function (source, options) {
     .push(1, 'console.log(response);')
     .push('})')
     .push('.catch(err => {')
-    .push(1, 'console.log(err);')
+    .push(1, 'console.error(err);')
     .push('});')
 
   return code.join()

@@ -1,4 +1,4 @@
-var form = new FormData();
+const form = new FormData();
 form.append("foo", "test/fixtures/files/hello.txt");
 
 fetch("http://mockbin.com/har", {
@@ -11,5 +11,5 @@ fetch("http://mockbin.com/har", {
   console.log(response);
 })
 .catch(err => {
-  console.log(err);
+  console.error(err);
 });

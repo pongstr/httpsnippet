@@ -1,106 +1,73 @@
 /**
  * @description
- * HTTP code snippet generator for Node.js using Unirest.
+ * HTTP code snippet generator for Javascript & Node.js using Axios.
  *
  * @author
- * @AhmadNassri
+ * @rohit-gohri
  *
  * for any questions or issues regarding the generated code snippet, please open an issue mentioning the author.
  */
-
 'use strict'
 
-let CodeBuilder = require('../../helpers/code-builder')
+var util = require('util')
+var stringifyObject = require('stringify-object')
+var CodeBuilder = require('../../helpers/code-builder')
 
-function contentBodyFactory(contentType, postData, includeFS = false) {
-  switch (contentType) {
-    case 'application/x-www-form-urlencoded':
-      return [postData.paramsObj, includeFS]
-    case 'application/json':
-      return [postData.jsonObj, includeFS]
-    case 'multipart/form-data':
-      let multipart = []
-
-      postData.params.forEach((param) => {
-        let part = {}
-
-        if (param.fileName && !param.value) {
-          includeFS = true
-
-          part.body = 'fs.createReadStream("' + param.fileName + '")'
-        } else if (param.value) {
-          part.body = param.value
-        }
-
-        if (part.body) {
-          if (param.contentType) {
-            part['content-type'] = param.contentType
-          }
-
-          multipart.push(part)
-        }
-      })
-      return [multipart, includeFS]
-    default:
-      if (postData.text) {
-        return [postData.text, includeFS]
-      }
-      return [null, includeFS]
-  }
-
-}
 module.exports = function (source, options) {
-  let opts = Object.assign({
+  var opts = Object.assign({
     indent: '  '
   }, options)
 
-  let code = new CodeBuilder(opts.indent)
+  var code = new CodeBuilder(opts.indent)
 
-  code.push('const axios = require("axios");')
+  code.push('var axios = require("axios").default;')
+      .blank()
+
+  var reqOpts = {
+    method: source.method,
+    url: source.url
+  }
+
+  if (Object.keys(source.queryObj).length) {
+    reqOpts.params = source.queryObj
+  }
+
+  if (Object.keys(source.allHeaders).length) {
+    reqOpts.headers = source.allHeaders
+  }
+
+  switch (source.postData.mimeType) {
+    case 'application/x-www-form-urlencoded':
+      reqOpts.data = source.postData.paramsObj
+      break
+
+    case 'application/json':
+      if (source.postData.jsonObj) {
+        reqOpts.data = source.postData.jsonObj
+      }
+      break
+
+    default:
+      if (source.postData.text) {
+        reqOpts.data = source.postData.text
+      }
+  }
+
+  code.push('var options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }))
     .blank()
 
-  const requestOptions = {
-    method: `${source.method}`,
-    url: `${source.url}`,
-    headers: {
-      'content-type': `${source.postData.mimeType}`,
-      ...(Object.keys(source.headersObj).length && source.headersObj),
-      'useQueryString': true
-    },
-    params: Object.keys(source.queryObj).length ? source.queryObj : undefined
-  };
-  const { postData } = source
-  const { mimeType } = postData
-  const [data, includeFS] = contentBodyFactory(mimeType, postData)
-  if (data) {
-    requestOptions['data'] = data
-  }
-  if (includeFS) {
-    code.unshift('const fs = require("fs");')
-  }
-  const formatedOptions = JSON.stringify(requestOptions)
-    .replace(/{/g, `{
-    `)
-    .replace(/}/g, `
-    }`)
-    .replace(/",/g, `",
-    `)
-  code.push(`axios(${
-    formatedOptions
-    })
-    .then((response)=>{
-      console.log(response)
-    })
-    .catch((error)=>{
-      console.log(error)
-    })`)
+  code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
+      .push(1, 'console.log(response.data);')
+      .push('}).catch(%s', 'function (error) {')
+      .push(1, 'console.error(error);')
+      .push('});')
 
-  return code.join().replace(/"fs\.createReadStream\(\\"(.+)\\"\)"/, 'fs.createReadStream("$1")')
+  return code.join()
 }
 
 module.exports.info = {
   key: 'axios',
   title: 'Axios',
   link: 'https://github.com/axios/axios',
-  description: 'Promise based HTTP client for the browser and node.js - axios/axios.'
+  description: 'Promise based HTTP client for the browser and node.js'
 }
