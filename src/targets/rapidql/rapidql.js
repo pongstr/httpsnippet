@@ -31,7 +31,7 @@ module.exports = function (source, options) {
     code.push(`    json: true,`)
     code.push(`    body: ${source.postData.text}`)
   } else if(source.postData.params) {
-    code.push(`    form : {\n${Object.entries(source.postData.params).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
+    code.push(`    form : {\n${source.postData.params.map(param => `"${param.name}":"${param.value}"`).join(",\n")}\n    }`);
   } else {
     code.push(`    body : ${source.postData.text}`);
   }
