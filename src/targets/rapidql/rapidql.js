@@ -28,13 +28,13 @@ module.exports = function (source, options) {
   }
 
 
-  if (source?.postData?.jsonObj) {
+  if (source.postData.jsonObj) {
     code.push(`    json: true,`)
-    code.push(`    body: ${source?.postData?.text}`)
-  } else if(source?.postData?.params) {
+    code.push(`    body: ${source.postData.text}`)
+  } else if(source.postData.params) {
     code.push(`    form : {\n${Object.entries(source.postData.params).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
   } else {
-    code.push(`    body : ${source?.postData?.text}`);
+    code.push(`    body : ${source.postData.text}`);
   }
 
   code.push("  ) {");
