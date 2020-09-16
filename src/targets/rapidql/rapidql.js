@@ -11,9 +11,9 @@ module.exports = function (source, options) {
 
   var code = new CodeBuilder(opts.indent)
 
-  code.push('// For more information about RapidQL, checkout docs.rapidql.com!')
-      .push('')
-      .blank()
+  code.push('// For more information about RapidQL, checkout docs.rapidql.com!');
+  code.push('');
+  code.blank();
   code.push('// For more information about RapidQL, checkout docs.rapidql.com!');
   code.push("const RapidQL = require('RapidQL');");
   code.push('let rql = new RapidQL({');
