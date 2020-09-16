@@ -16,6 +16,7 @@ module.exports = {
   powershell: require('./powershell'),
   python: require('./python'),
   r: require('./r'),
+  rapidql: require('./rapidql'),
   ruby: require('./ruby'),
   shell: require('./shell'),
   swift: require('./swift')
