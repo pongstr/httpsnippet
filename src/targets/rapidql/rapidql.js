@@ -24,7 +24,7 @@ module.exports = function (source, options) {
   code.push(`    url:"${helpers.quote(source.fullUrl)}"`);
 
   if (source.headers.length) {
-    lines.push(`    headers : {\n${Object.entries(source.allHeaders).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
+    code.push(`    headers : {\n${Object.entries(source.allHeaders).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
   }
 
 
