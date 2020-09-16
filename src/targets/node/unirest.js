@@ -26,7 +26,7 @@ module.exports = function (source, options) {
     .blank()
 
   if (source.cookies.length) {
-    code.push('var CookieJar = unirest.jar();')
+    code.push('const CookieJar = unirest.jar();')
 
     source.cookies.forEach(function (cookie) {
       code.push('CookieJar.add("%s=%s","%s");', encodeURIComponent(cookie.name), encodeURIComponent(cookie.value), source.url)
@@ -50,6 +50,7 @@ module.exports = function (source, options) {
     case 'application/x-www-form-urlencoded':
       if (source.postData.paramsObj) {
         code.push('req.form(%s);', JSON.stringify(source.postData.paramsObj, null, opts.indent))
+          .blank()
       }
       break
 
@@ -84,16 +85,18 @@ module.exports = function (source, options) {
         }
       })
       code.push('req.multipart(%s);', JSON.stringify(multipart, null, opts.indent))
+        .blank()
       break
 
     default:
       if (source.postData.text) {
-        code.push(opts.indent + 'req.send(%s);', JSON.stringify(source.postData.text, null, opts.indent))
+        code.push('req.send(%s);', JSON.stringify(source.postData.text, null, opts.indent))
+          .blank()
       }
   }
 
   if (includeFS) {
-    code.unshift('var fs = require("fs");')
+    code.unshift('const fs = require("fs");')
   }
 
   code.blank()

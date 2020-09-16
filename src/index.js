@@ -1,8 +1,11 @@
+/* eslint-env browser */
+
 'use strict'
 
 var debug = require('debug')('httpsnippet')
 // var es = require('event-stream') // This import is not used in the file TODO: Marked for remove
 var MultiPartForm = require('form-data')
+var FormDataPolyfill = require('form-data/lib/form_data')
 var qs = require('querystring')
 var reducer = require('./helpers/reducer')
 var targets = require('./targets')
@@ -246,6 +249,34 @@ HTTPSnippet.prototype._matchTarget = function (target, client) {
 
 // exports
 module.exports = HTTPSnippet
+
+module.exports.addTarget = function (target) {
+  if (!('info' in target)) {
+    throw new Error('The supplied custom target must contain an `info` object.')
+  } else if (!('key' in target.info) || !('title' in target.info) || !('extname' in target.info) || !('default' in target.info)) {
+    throw new Error('The supplied custom target must have an `info` object with a `key`, `title`, `extname`, and `default` property.')
+  } else if (targets.hasOwnProperty(target.info.key)) {
+    throw new Error('The supplied custom target already exists.')
+  } else if (Object.keys(target).length === 1) {
+    throw new Error('A custom target must have a client defined on it.')
+  }
+
+  targets[target.info.key] = target
+}
+
+module.exports.addTargetClient = function (target, client) {
+  if (!targets.hasOwnProperty(target)) {
+    throw new Error(`Sorry, but no ${target} target exists to add clients to.`)
+  } else if (!('info' in client)) {
+    throw new Error('The supplied custom target client must contain an `info` object.')
+  } else if (!('key' in client.info) || !('title' in client.info)) {
+    throw new Error('The supplied custom target client must have an `info` object with a `key` and `title` property.')
+  } else if (targets[target].hasOwnProperty(client.info.key)) {
+    throw new Error('The supplied custom target client already exists, please use a different key')
+  }
+
+  targets[target][client.info.key] = client
+}
 
 module.exports.availableTargets = function () {
   return Object.keys(targets).map(function (key) {
