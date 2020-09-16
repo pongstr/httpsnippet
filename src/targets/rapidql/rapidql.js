@@ -11,49 +11,50 @@ module.exports = function (source, options) {
 
   var code = new CodeBuilder(opts.indent)
 
-  code.push('var axios = require("axios").default;')
+  code.push('// For more information about RapidQL, checkout docs.rapidql.com!')
+      .push('')
       .blank()
+  code.push('// For more information about RapidQL, checkout docs.rapidql.com!');
+  code.push("const RapidQL = require('RapidQL');");
+  code.push('let rql = new RapidQL({');
+  code.push('});');
+  code.push('');
+  code.push('rql.query(`{');
+  code.push(`  Http.${(source.method || '').toLowerCase()}(`);
+  code.push(`    url:"${helpers.quote(source.fullUrl)}"`);
 
-  var reqOpts = {
-    method: source.method,
-    url: source.url
+  if (source.headers.length) {
+    lines.push(`    headers : {\n${Object.entries(source.allHeaders).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
   }
 
-  if (Object.keys(source.queryObj).length) {
-    reqOpts.params = source.queryObj
+  // if (parameters.length) {
+  //   appendComma(lines.length - 1);
+  //   lines.push(`    form : {\n${parameters.join(",\n")}\n    }`);
+  // }
+
+  if (source?.postData?.text) {
+    code.push(`    json: true,`)
+    code.push(`    body: ${source?.postData?.text}`)
   }
 
-  if (Object.keys(source.allHeaders).length) {
-    reqOpts.headers = source.allHeaders
-  }
+  // builder.forPayload((payload) => {
+  //   appendComma(lines.length - 1);
+  //   if (payload.format === "JSON") {
+  //     lines.push(`    json : true,`);
+  //     lines.push(`    body : ${helpers.escapePayload(payload, true)}`);
+  //   } else {
+  //     lines.push(`    body : "${helpers.escapePayload(payload)}"`);
+  //   }
+  // });
 
-  switch (source.postData.mimeType) {
-    case 'application/x-www-form-urlencoded':
-      reqOpts.data = source.postData.paramsObj
-      break
+  code.push("  ) {");
+  code.push("");
+  code.push("  }");
+  code.push("}`)");
+  code.push(".then((res) => console.log(res))");
+  code.push(".catch((err) => console.log(err));");
 
-    case 'application/json':
-      if (source.postData.jsonObj) {
-        reqOpts.data = source.postData.jsonObj
-      }
-      break
-
-    default:
-      if (source.postData.text) {
-        reqOpts.data = source.postData.text
-      }
-  }
-
-  code.push('var options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }))
-    .blank()
-
-  code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
-      .push(1, 'console.log(response.data);')
-      .push('}).catch(%s', 'function (error) {')
-      .push(1, 'console.error(error);')
-      .push('});')
-
-  return code.join()
+  return code.join();
 }
 
 module.exports.info = {
