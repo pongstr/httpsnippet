@@ -27,25 +27,15 @@ module.exports = function (source, options) {
     lines.push(`    headers : {\n${Object.entries(source.allHeaders).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
   }
 
-  // if (parameters.length) {
-  //   appendComma(lines.length - 1);
-  //   lines.push(`    form : {\n${parameters.join(",\n")}\n    }`);
-  // }
 
-  if (source?.postData?.text) {
+  if (source?.postData?.jsonObj) {
     code.push(`    json: true,`)
     code.push(`    body: ${source?.postData?.text}`)
+  } else if(source?.postData?.params) {
+    code.push(`    form : {\n${Object.entries(source.postData.params).map(([key, val]) => `"${key}":"${val}"`).join(",\n")}\n    }`);
+  } else {
+    code.push(`    body : ${source?.postData?.text}`);
   }
-
-  // builder.forPayload((payload) => {
-  //   appendComma(lines.length - 1);
-  //   if (payload.format === "JSON") {
-  //     lines.push(`    json : true,`);
-  //     lines.push(`    body : ${helpers.escapePayload(payload, true)}`);
-  //   } else {
-  //     lines.push(`    body : "${helpers.escapePayload(payload)}"`);
-  //   }
-  // });
 
   code.push("  ) {");
   code.push("");
