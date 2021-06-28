@@ -34,7 +34,7 @@ module.exports = function (source, options) {
 
     case 'application/json':
       settings.processData = false
-      settings.data = source.postData.text
+      settings.data = source.postData.jsonObj
       break
 
     case 'multipart/form-data':
