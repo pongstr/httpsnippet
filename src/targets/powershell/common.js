@@ -1,20 +1,21 @@
 'use strict'
 
-var CodeBuilder = require('../../helpers/code-builder')
+const CodeBuilder = require('../../helpers/code-builder')
+const helpers = require('../../helpers/headers')
 
 module.exports = function (command) {
   return function (source, options) {
-    var code = new CodeBuilder()
-    var methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+    const code = new CodeBuilder()
+    const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
     if (methods.indexOf(source.method.toUpperCase()) === -1) {
       return 'Method not supported'
     }
 
-    var commandOptions = []
+    const commandOptions = []
 
     // Add headers, including the cookies
-    var headers = Object.keys(source.headersObj)
+    const headers = Object.keys(source.headersObj)
 
     // construct headers
     if (headers.length) {
@@ -44,7 +45,7 @@ module.exports = function (command) {
     }
 
     if (source.postData.text) {
-      commandOptions.push("-ContentType '" + source.allHeaders['content-type'] + "'")
+      commandOptions.push("-ContentType '" + helpers.getHeader(source.allHeaders, 'content-type') + "'")
       commandOptions.push("-Body '" + source.postData.text + "'")
     }
 

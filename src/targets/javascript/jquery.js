@@ -10,16 +10,17 @@
 
 'use strict'
 
-var CodeBuilder = require('../../helpers/code-builder')
+const CodeBuilder = require('../../helpers/code-builder')
+const helpers = require('../../helpers/headers')
 
 module.exports = function (source, options) {
-  var opts = Object.assign({
+  const opts = Object.assign({
     indent: '  '
   }, options)
 
-  var code = new CodeBuilder(opts.indent)
+  const code = new CodeBuilder(opts.indent)
 
-  var settings = {
+  const settings = {
     async: true,
     crossDomain: true,
     url: source.fullUrl,
@@ -50,9 +51,12 @@ module.exports = function (source, options) {
       settings.data = '[form]'
 
       // remove the contentType header
-      if (~settings.headers['content-type'].indexOf('boundary')) {
-        delete settings.headers['content-type']
+      if (helpers.hasHeader(settings.headers, 'content-type')) {
+        if (helpers.getHeader(settings.headers, 'content-type').indexOf('boundary')) {
+          delete settings.headers[helpers.getHeaderName(settings.headers, 'content-type')]
+        }
       }
+
       code.blank()
       break
 
@@ -63,10 +67,10 @@ module.exports = function (source, options) {
   }
 
   code.push('const settings = ' + JSON.stringify(settings, null, opts.indent).replace('"[form]"', 'form') + ';')
-      .blank()
-      .push('$.ajax(settings).done(function (response) {')
-      .push(1, 'console.log(response);')
-      .push('});')
+    .blank()
+    .push('$.ajax(settings).done(function (response) {')
+    .push(1, 'console.log(response);')
+    .push('});')
 
   return code.join()
 }

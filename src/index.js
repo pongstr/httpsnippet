@@ -2,25 +2,22 @@
 
 'use strict'
 
-var debug = require('debug')('httpsnippet')
-// var es = require('event-stream') // This import is not used in the file TODO: Marked for remove
-var MultiPartForm = require('form-data')
-var FormDataPolyfill = require('form-data/lib/form_data')
-var qs = require('querystring')
-var reducer = require('./helpers/reducer')
-var targets = require('./targets')
-var url = require('url')
-var validate = require('har-validator/lib/async')
+const debug = require('debug')('httpsnippet')
+const es = require('event-stream')
+const MultiPartForm = require('form-data')
+const qs = require('querystring')
+const url = require('url')
+const validate = require('har-validator/lib/async')
 const get = require('lodash').get
 
+const targets = require('./targets')
+const helpers = require('./helpers/headers')
+const reducer = require('./helpers/reducer')
 const { formDataIterator, isBlob } = require('./helpers/form-data.js')
-
-// constructor
-var HTTPSnippet = function (data) {
-  var entries
-  var self = this
-  var input = Object.assign({}, data)
-  var boundary
+const HTTPSnippet = function (data) {
+  let entries
+  const self = this
+  const input = Object.assign({}, data)
 
   // prep the main container
   self.requests = []
@@ -100,9 +97,14 @@ HTTPSnippet.prototype.prepare = function (request) {
 
   // construct headers objects
   if (request.headers && request.headers.length) {
-    // loweCase header keys
+    const http2VersionRegex = /^HTTP\/2/
     request.headersObj = request.headers.reduce(function (headers, header) {
-      headers[header.name.toLowerCase()] = header.value
+      let headerName = header.name
+      if (request.httpVersion.match(http2VersionRegex)) {
+        headerName = headerName.toLowerCase()
+      }
+
+      headers[headerName] = header.value
       return headers
     }, {})
   }
@@ -116,7 +118,7 @@ HTTPSnippet.prototype.prepare = function (request) {
   }
 
   // construct Cookie header
-  var cookies = request.cookies.map(function (cookie) {
+  const cookies = request.cookies.map(function (cookie) {
     return encodeURIComponent(cookie.name) + '=' + encodeURIComponent(cookie.value)
   })
 
@@ -139,7 +141,7 @@ HTTPSnippet.prototype.prepare = function (request) {
       // request.postData.mimeType = 'multipart/form-data'
 
       if (request.postData.params) {
-        var form = new MultiPartForm()
+        const form = new MultiPartForm()
 
         /***************
         request.postData.params.forEach((param) => {
@@ -168,7 +170,7 @@ HTTPSnippet.prototype.prepare = function (request) {
         // This hack is pretty awful but it's the only way we can use this library in the browser as if we code this
         // against just the native FormData object, we can't polyfill that back into Node because Blob and File objects,
         // which something like `formdata-polyfill` requires, don't exist there.
-        const isNativeFormData = !(form instanceof FormDataPolyfill)
+        const isNativeFormData = (typeof form[Symbol.iterator] === 'function')
 
         // easter egg
         const boundary = '---011000010111000001101001'
@@ -196,17 +198,25 @@ HTTPSnippet.prototype.prepare = function (request) {
         })
 
         if (isNativeFormData) {
-          for (var data of formDataIterator(form, boundary)) {
+          for (const data of formDataIterator(form, boundary)) {
             request.postData.text += data
           }
         } else {
+          // eslint-disable-next-line array-callback-return
           form.pipe(es.map(function (data, cb) {
             request.postData.text += data
           }))
         }
 
         request.postData.boundary = boundary
-        request.headersObj['content-type'] = 'multipart/form-data; boundary=' + boundary
+
+        // Since headers are case-sensitive we need to see if there's an existing `Content-Type` header that we can
+        // override.
+        const contentTypeHeader = helpers.hasHeader(request.headersObj, 'content-type')
+          ? helpers.getHeaderName(request.headersObj, 'content-type')
+          : 'content-type'
+
+        request.headersObj[contentTypeHeader] = 'multipart/form-data; boundary=' + boundary
       }
       break
 
@@ -245,6 +255,7 @@ HTTPSnippet.prototype.prepare = function (request) {
   request.allHeaders = Object.assign(request.allHeaders, request.headersObj)
 
   // deconstruct the uri
+  // eslint-disable-next-line node/no-deprecated-api
   request.uriObj = url.parse(request.url, true, true)
 
   // merge all possible queryString values
@@ -277,10 +288,9 @@ HTTPSnippet.prototype.convert = function (target, client, opts) {
     opts = client
   }
 
-  var func = this._matchTarget(target, client)
-
+  const func = this._matchTarget(target, client)
   if (func) {
-    var results = this.requests.map(function (request) {
+    const results = this.requests.map(function (request) {
       return func(request, opts)
     })
 
@@ -292,6 +302,7 @@ HTTPSnippet.prototype.convert = function (target, client, opts) {
 
 HTTPSnippet.prototype._matchTarget = function (target, client) {
   // does it exist?
+  // eslint-disable-next-line no-prototype-builtins
   if (!targets.hasOwnProperty(target)) {
     return false
   }
@@ -313,6 +324,7 @@ module.exports.addTarget = function (target) {
     throw new Error('The supplied custom target must contain an `info` object.')
   } else if (!('key' in target.info) || !('title' in target.info) || !('extname' in target.info) || !('default' in target.info)) {
     throw new Error('The supplied custom target must have an `info` object with a `key`, `title`, `extname`, and `default` property.')
+  // eslint-disable-next-line no-prototype-builtins
   } else if (targets.hasOwnProperty(target.info.key)) {
     throw new Error('The supplied custom target already exists.')
   } else if (Object.keys(target).length === 1) {
@@ -323,12 +335,14 @@ module.exports.addTarget = function (target) {
 }
 
 module.exports.addTargetClient = function (target, client) {
+  // eslint-disable-next-line no-prototype-builtins
   if (!targets.hasOwnProperty(target)) {
     throw new Error(`Sorry, but no ${target} target exists to add clients to.`)
   } else if (!('info' in client)) {
     throw new Error('The supplied custom target client must contain an `info` object.')
   } else if (!('key' in client.info) || !('title' in client.info)) {
     throw new Error('The supplied custom target client must have an `info` object with a `key` and `title` property.')
+  // eslint-disable-next-line no-prototype-builtins
   } else if (targets[target].hasOwnProperty(client.info.key)) {
     throw new Error('The supplied custom target client already exists, please use a different key')
   }
@@ -338,13 +352,11 @@ module.exports.addTargetClient = function (target, client) {
 
 module.exports.availableTargets = function () {
   return Object.keys(targets).map(function (key) {
-    var target = Object.assign({}, targets[key].info)
-    var clients = Object.keys(targets[key])
-
+    const target = Object.assign({}, targets[key].info)
+    const clients = Object.keys(targets[key])
       .filter(function (prop) {
         return !~['info', 'index'].indexOf(prop)
       })
-
       .map(function (client) {
         return targets[key][client].info
       })

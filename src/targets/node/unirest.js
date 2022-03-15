@@ -10,19 +10,19 @@
 
 'use strict'
 
-var CodeBuilder = require('../../helpers/code-builder')
+const CodeBuilder = require('../../helpers/code-builder')
 
 module.exports = function (source, options) {
-  var opts = Object.assign({
+  const opts = Object.assign({
     indent: '  '
   }, options)
 
-  var includeFS = false
-  var code = new CodeBuilder(opts.indent)
+  let includeFS = false
+  const code = new CodeBuilder(opts.indent)
 
-  code.push('var unirest = require("unirest");')
+  code.push('const unirest = require("unirest");')
     .blank()
-    .push('var req = unirest("%s", "%s");', source.method, source.url)
+    .push('const req = unirest("%s", "%s");', source.method, source.url)
     .blank()
 
   if (source.cookies.length) {
@@ -58,14 +58,15 @@ module.exports = function (source, options) {
       if (source.postData.jsonObj) {
         code.push('req.type("json");')
           .push('req.send(%s);', JSON.stringify(source.postData.jsonObj, null, opts.indent))
+          .blank()
       }
       break
 
-    case 'multipart/form-data':
-      var multipart = []
+    case 'multipart/form-data': {
+      const multipart = []
 
       source.postData.params.forEach(function (param) {
-        var part = {}
+        const part = {}
         const { name } = param || 'body'
         if (param.fileName && !param.value) {
           includeFS = true
@@ -87,6 +88,7 @@ module.exports = function (source, options) {
       code.push('req.multipart(%s);', JSON.stringify(multipart, null, opts.indent))
         .blank()
       break
+    }
 
     default:
       if (source.postData.text) {
@@ -99,8 +101,7 @@ module.exports = function (source, options) {
     code.unshift('const fs = require("fs");')
   }
 
-  code.blank()
-    .push('req.end(function (res) {')
+  code.push('req.end(function (res) {')
     .push(1, 'if (res.error) throw new Error(res.error);')
     .blank()
     .push(1, 'console.log(res.body);')

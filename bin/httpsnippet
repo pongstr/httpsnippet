@@ -2,14 +2,14 @@
 
 'use strict'
 
-var chalk = require('chalk')
-var cmd = require('commander')
-var fs = require('fs')
-var readFile = require('fs-readfile-promise')
-var writeFile = require('fs-writefile-promise')
-var HTTPSnippet = require('..')
-var path = require('path')
-var pkg = require('../package.json')
+const chalk = require('chalk')
+const cmd = require('commander')
+const fs = require('fs')
+const readFile = require('fs-readfile-promise')
+const writeFile = require('fs-writefile-promise')
+const HTTPSnippet = require('..')
+const path = require('path')
+const pkg = require('../package.json')
 
 cmd
   .version(pkg.version)
@@ -17,14 +17,26 @@ cmd
   .option('-t, --target <target>', 'target output')
   .option('-c, --client [client]', 'target client library')
   .option('-o, --output <directory>', 'write output to directory')
+  .option('-x, --extra [{"optionKey": "optionValue"}]', 'provide extra options for the target/client')
   .parse(process.argv)
 
 if (!cmd.args.length || !cmd.target) {
   cmd.help()
 }
 
+let extraOptions
+if (cmd.extra) {
+  try {
+    extraOptions = JSON.parse(cmd.extra)
+  } catch (e) {
+    console.error('%s failed to parse options %s (should be JSON)', chalk.red('✖'), chalk.cyan.bold(cmd.extra))
+    process.exit()
+  }
+}
+
+let dir
 if (cmd.output) {
-  var dir = path.resolve(cmd.output)
+  dir = path.resolve(cmd.output)
 
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -32,7 +44,7 @@ if (cmd.output) {
 }
 
 cmd.args.forEach(function (fileName) {
-  var file = path.basename(fileName)
+  const file = path.basename(fileName)
 
   readFile(fileName)
     .then(JSON.parse)
@@ -52,19 +64,24 @@ cmd.args.forEach(function (fileName) {
     })
 
     .then(function (snippet) {
-      return snippet.convert(cmd.target, cmd.client)
+      return snippet.convert(cmd.target, cmd.client, extraOptions)
     })
 
     .then(function (output) {
+      if (!output) {
+        const targetNames = HTTPSnippet.availableTargets().map(function (t) { return t.key }).join(', ')
+        return console.error('%s %s is not a valid target. Valid targets: %s', chalk.red('✖'), chalk.red(cmd.target), chalk.cyan(targetNames))
+      }
+
       // print
       if (!cmd.output) {
         return console.log('%s %s > %s [%s] :\n%s', chalk.green('✓'), chalk.cyan.bold(file), chalk.yellow(cmd.target), chalk.yellow(cmd.client ? cmd.client : 'default'), output)
       }
 
       // write to file
-      var name = path.basename(file, path.extname(file))
+      const name = path.basename(file, path.extname(file))
 
-      var filename = path.format({
+      const filename = path.format({
         dir: dir,
         base: name + HTTPSnippet.extname(cmd.target)
       })

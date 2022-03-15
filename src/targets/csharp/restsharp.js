@@ -1,10 +1,11 @@
 'use strict'
 
-var CodeBuilder = require('../../helpers/code-builder')
+const CodeBuilder = require('../../helpers/code-builder')
+const helpers = require('../../helpers/headers')
 
 module.exports = function (source, options) {
-  var code = new CodeBuilder()
-  var methods = [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS' ]
+  const code = new CodeBuilder()
+  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
 
   if (methods.indexOf(source.method.toUpperCase()) === -1) {
     return 'Method not supported'
@@ -14,7 +15,7 @@ module.exports = function (source, options) {
   }
 
   // Add headers, including the cookies
-  var headers = Object.keys(source.headersObj)
+  const headers = Object.keys(source.headersObj)
 
   // construct headers
   if (headers.length) {
@@ -31,7 +32,11 @@ module.exports = function (source, options) {
   }
 
   if (source.postData.text) {
-    code.push('request.AddParameter("%s", %s, ParameterType.RequestBody);', source.allHeaders['content-type'], JSON.stringify(source.postData.text))
+    code.push(
+      'request.AddParameter("%s", %s, ParameterType.RequestBody);',
+      helpers.getHeader(source.allHeaders, 'content-type'),
+      JSON.stringify(source.postData.text)
+    )
   }
 
   code.push('IRestResponse response = client.Execute(request);')
