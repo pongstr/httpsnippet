@@ -1,0 +1,54 @@
+name: Publish HttpSnippet Packages
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "package.json"
+      - "**.md"
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Log level"
+        required: true
+        default: "warning"
+      tags:
+        description: "Test scenario tags"
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Auth
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+        env:
+          github_token: ${{secrets.ACTIONS_ACCESS_KEY}}
+
+      - name: Install node 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@rapidapi"
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install root dependencies
+        run: yarn --no-progress --non-interactive --frozen-lockfile
+
+      - name: Publish Package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.ACTIONS_ACCESS_KEY}}
