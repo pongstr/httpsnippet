@@ -1,18 +1,15 @@
 'use strict'
 
-var util = require('util')
-var stringifyObject = require('stringify-object')
-var CodeBuilder = require('../../helpers/code-builder')
+const CodeBuilder = require('../../helpers/code-builder')
 
 module.exports = function (source, options) {
   var opts = Object.assign({
     indent: '  '
   }, options)
 
-  var code = new CodeBuilder(opts.indent)
+  const code = new CodeBuilder(opts.indent)
 
   code.push('// For more information about RapidQL, checkout docs.rapidql.com!');
-  code.push('');
   code.blank();
   code.push("const RapidQL = require('RapidQL');");
   code.push('let rql = new RapidQL({');

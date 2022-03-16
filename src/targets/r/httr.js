@@ -85,23 +85,24 @@ module.exports = function (source, options) {
 
   // Construct headers
   const headers = source.allHeaders
-  let headerCount = Object.keys(headers).length
+  const headersKeys = Object.keys(headers);
+  let headerCount = headersKeys.length
   let header = ''
   let cookies
   let accept
 
-  for (const head in headers) {
-    if (head.toLowerCase() === 'accept') {
-      accept = ', accept("' + headers[head] + '")'
+  headersKeys.forEach((headerKey, index) => {
+    if (headerKey.toLowerCase() === 'accept') {
+      accept = ', accept("' + headers[headerKey] + '")'
       headerCount = headerCount - 1
-    } else if (head.toLowerCase() === 'cookie') {
-      cookies = ', set_cookies(`' + headers[head].replace(/;/g, '", `').replace(/` /g, '`').replace(/=/g, '` = "') + '")'
+    } else if (headerKey.toLowerCase() === 'cookie') {
+      cookies = ', set_cookies(`' + headers[headerKey].replace(/;/g, '", `').replace(/` /g, '`').replace(/=/g, '` = "') + '")'
       headerCount = headerCount - 1
-    } else if (head.toLowerCase() !== 'content-type') {
-      header = header + head.replace('-', '_') + " = '" + headers[head]
-      if (headerCount > 1) { header = header + "', " }
+    } else if (headerKey.toLowerCase() !== 'content-type') {
+      header += `'${headerKey}' = '${headers[headerKey]}`
+      if (headerCount > 1 && index !== headersKeys.length - 1) { header += "', " }
     }
-  }
+  })
 
   // Construct request
   const method = source.method
