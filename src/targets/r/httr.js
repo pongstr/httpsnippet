@@ -27,24 +27,23 @@ module.exports = function (source, options) {
 
   // Construct query string
   const qs = source.queryObj
-  const queryCount = Object.keys(qs).length
+  const queryKeys = Object.keys(qs)
+  const queryCount = queryKeys.length
   delete source.queryObj.key
 
-  if (source.queryString.length === 1) {
-    code.push('queryString <- list(%s = "%s")', Object.keys(qs), Object.values(qs).toString())
+  if (queryCount === 1) {
+    code.push('queryString <- list(%s = "%s")', queryKeys, Object.values(qs).toString())
       .blank()
-  } else if (source.queryString.length > 1) {
-    let count = 1
-
+  } else if (queryCount > 1) {
     code.push('queryString <- list(')
 
-    for (const query in qs) {
-      if (count++ !== queryCount - 1) {
-        code.push('  %s = "%s",', query, qs[query].toString())
+    queryKeys.forEach((queryKey, index) => {
+      if (index !== queryCount - 1) {
+        code.push('  %s = "%s",', queryKey, qs[queryKey].toString())
       } else {
-        code.push('  %s = "%s"', query, qs[query].toString())
+        code.push('  %s = "%s"', queryKey, qs[queryKey].toString())
       }
-    }
+    })
 
     code.push(')')
       .blank()
