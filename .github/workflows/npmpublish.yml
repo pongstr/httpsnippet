@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Auth
+      - name: Authenticate
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
