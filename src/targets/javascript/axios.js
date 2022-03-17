@@ -69,7 +69,7 @@ module.exports = function (source, options) {
       }
   }
 
-  code.push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace('"[form]"', 'form'))
+  code.push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[form]'", 'form'))
     .blank()
 
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
