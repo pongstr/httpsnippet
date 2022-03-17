@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - sahar/cicd
+    paths-ignore:
+      - "package.json"
+      - "**.md"
 
   workflow_dispatch:
     inputs:
