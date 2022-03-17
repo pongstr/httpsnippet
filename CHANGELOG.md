@@ -1,3 +1,7 @@
+## [2.0.2](https://github.com/RapidAPI/httpsnippet/compare/v2.0.1...v2.0.2) (2022-03-17)
+
+
+
 ## [2.0.1](https://github.com/RapidAPI/httpsnippet/compare/v2.0.0...v2.0.1) (2022-03-17)
 
 
@@ -51,21 +55,6 @@
 ### Reverts
 
 * Revert "docs(badges): remove badges until fixed" ([a1ed134](https://github.com/RapidAPI/httpsnippet/commit/a1ed13467d54c4a870c7421e2f003e3c7ab47c49))
-
-
-
-## [1.16.7](https://github.com/RapidAPI/httpsnippet/compare/v1.16.5...v1.16.7) (2019-03-10)
-
-
-### Bug Fixes
-
-* jsonObj cannot have null value ([f21d76e](https://github.com/RapidAPI/httpsnippet/commit/f21d76ebdb3715f8c6b16fba1100761a8fc50d2a))
-* **package:** update har-validator to version 5.0.0 ([f1a74c8](https://github.com/RapidAPI/httpsnippet/commit/f1a74c80952dac63d812750c3b24038da44fe244))
-
-
-### Features
-
-* **powershell:** add powershell webrequest target ([#127](https://github.com/RapidAPI/httpsnippet/issues/127)) ([7496355](https://github.com/RapidAPI/httpsnippet/commit/74963555cdcb4677a4f5a412fd476f567761f3e9)), closes [#105](https://github.com/RapidAPI/httpsnippet/issues/105)
 
 
 
