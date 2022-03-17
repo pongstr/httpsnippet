@@ -47,9 +47,9 @@
     "bin",
     "src"
   ],
-  "repository": "Mashape/httpsnippet",
+  "repository": "RapidAPI/httpsnippet",
   "bugs": {
-    "url": "https://github.com/Mashape/httpsnippet/issues"
+    "url": "https://github.com/RapidAPI/httpsnippet/issues"
   },
   "scripts": {
     "quick": "mocha --no-timeouts --fgrep 'Request Validation' --invert",
