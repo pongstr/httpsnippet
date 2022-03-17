@@ -1,3 +1,7 @@
+## [2.0.4](https://github.com/RapidAPI/httpsnippet/compare/v2.0.3...v2.0.4) (2022-03-17)
+
+
+
 ## [2.0.3](https://github.com/RapidAPI/httpsnippet/compare/v2.0.2...v2.0.3) (2022-03-17)
 
 
@@ -46,10 +50,6 @@
 ### BREAKING CHANGES
 
 * removed support for Node < 10
-
-
-
-## [1.19.1](https://github.com/RapidAPI/httpsnippet/compare/v1.19.0...v1.19.1) (2019-05-05)
 
 
 
