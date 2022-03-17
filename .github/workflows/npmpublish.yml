@@ -1,21 +1,12 @@
-name: Publish HttpSnippet Packages
+name: Publish HttpSnippet Package
 
 on:
   push:
     branches:
-      - sahar/cicd
+      - master
     paths-ignore:
       - "package.json"
       - "**.md"
-
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: "Log level"
-        required: true
-        default: "warning"
-      tags:
-        description: "Test scenario tag"
 
 jobs:
   publish-package:
@@ -51,7 +42,7 @@ jobs:
           github_base_ref: ${{ (github.base_ref) }}
           ACTIONS_ACCESS_KEY: ${{ (secrets.ACTIONS_ACCESS_KEY) }}
 
-      - name: Publish Package
+      - name: Publish HttpSnippet Package
         run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.ACTIONS_ACCESS_KEY}}
