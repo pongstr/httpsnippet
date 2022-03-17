@@ -19,19 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Authenticate
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-        env:
-          github_token: ${{secrets.ACTIONS_ACCESS_KEY}}
 
       - name: Install node 14
         uses: actions/setup-node@v2
