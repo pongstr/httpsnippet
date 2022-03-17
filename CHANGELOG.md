@@ -1,3 +1,7 @@
+## [2.0.1](https://github.com/RapidAPI/httpsnippet/compare/v2.0.0...v2.0.1) (2022-03-17)
+
+
+
 # [2.0.0](https://github.com/RapidAPI/httpsnippet/compare/v1.19.1...v2.0.0) (2022-03-17)
 
 
@@ -62,15 +66,6 @@
 ### Features
 
 * **powershell:** add powershell webrequest target ([#127](https://github.com/RapidAPI/httpsnippet/issues/127)) ([7496355](https://github.com/RapidAPI/httpsnippet/commit/74963555cdcb4677a4f5a412fd476f567761f3e9)), closes [#105](https://github.com/RapidAPI/httpsnippet/issues/105)
-
-
-
-## [1.16.5](https://github.com/RapidAPI/httpsnippet/compare/v1.16.4...v1.16.5) (2015-11-24)
-
-
-### Bug Fixes
-
-* **promises:** update har-validator and remove dependency on bluebird ([c328a36](https://github.com/RapidAPI/httpsnippet/commit/c328a3626a839b9813242f2ceade723b08342153))
 
 
 
