@@ -1,3 +1,7 @@
+## [2.0.3](https://github.com/RapidAPI/httpsnippet/compare/v2.0.2...v2.0.3) (2022-03-17)
+
+
+
 ## [2.0.2](https://github.com/RapidAPI/httpsnippet/compare/v2.0.1...v2.0.2) (2022-03-17)
 
 
@@ -46,15 +50,6 @@
 
 
 ## [1.19.1](https://github.com/RapidAPI/httpsnippet/compare/v1.19.0...v1.19.1) (2019-05-05)
-
-
-
-# [1.19.0](https://github.com/RapidAPI/httpsnippet/compare/v1.16.7...v1.19.0) (2019-04-29)
-
-
-### Reverts
-
-* Revert "docs(badges): remove badges until fixed" ([a1ed134](https://github.com/RapidAPI/httpsnippet/commit/a1ed13467d54c4a870c7421e2f003e3c7ab47c49))
 
 
 
