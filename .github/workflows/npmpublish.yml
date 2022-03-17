@@ -18,6 +18,21 @@ jobs:
   publish-package:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout GitHub Actions
+        uses: actions/checkout@v2
+        with:
+          repository: RapidAPI/rapidapi-github-actions
+          ref: master
+          token: ${{ secrets.ACTIONS_ACCESS_KEY }}
+          path: .github/actions
+
+      - name: Create GitHub Release
+        uses: ./.github/actions/create-github-release
+        with:
+          github_head_ref: ${{ (github.head_ref) }}
+          github_base_ref: ${{ (github.base_ref) }}
+          ACTIONS_ACCESS_KEY: ${{ (secrets.ACTIONS_ACCESS_KEY) }}
+
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
