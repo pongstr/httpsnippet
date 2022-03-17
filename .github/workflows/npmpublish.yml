@@ -3,10 +3,8 @@ name: Publish HttpSnippet Packages
 on:
   push:
     branches:
-      - main
-    paths-ignore:
-      - "package.json"
-      - "**.md"
+      - sahar/cicd
+
   workflow_dispatch:
     inputs:
       logLevel:
@@ -42,13 +40,10 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
           scope: "@rapidapi"
 
-      - name: Install yarn
-        run: npm install -g yarn
-
       - name: Install root dependencies
         run: yarn --no-progress --non-interactive --frozen-lockfile
 
       - name: Publish Package
-        run: npm publish
+        run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.ACTIONS_ACCESS_KEY}}
