@@ -1,5 +1,5 @@
 {
-  "version": "2.0.10",
+  "version": "2.0.11",
   "name": "@rapidapi/httpsnippet",
   "description": "HTTP Request snippet generator for *most* languages",
   "author": "Ahmad Nassri <ahmad@mashape.com> (https://www.mashape.com/)",
