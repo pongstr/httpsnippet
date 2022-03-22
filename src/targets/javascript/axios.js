@@ -48,19 +48,27 @@ module.exports = function (source, options) {
       break
 
     case 'multipart/form-data':
-      code.push('const form = new FormData();')
+      delete reqOpts.headers['Content-Type']
+      delete reqOpts.headers['content-type'] // content-type header will come from the data.getHeaders() with the right boundary
+
+      code.push('const data = new FormData();')
 
       source.postData.params.forEach(function (param) {
-        code.push(
-          'form.append(%s, %s);',
-          JSON.stringify(param.name),
-          JSON.stringify(param.value || param.fileName || '')
-        )
+        if (param.fileName) {
+          code.push('data.append(%s, yourAppInput.files[0], %s);', JSON.stringify(param.name), JSON.stringify(param.fileName))
+        } else {
+          const value = param.value !== undefined ? param.value.toString() : ''        
+          code.push(
+            'data.append(%s, %s);',
+            JSON.stringify(param.name),
+            JSON.stringify(value)
+          )
+        }
       })
 
       code.blank()
 
-      reqOpts.data = '[form]'
+      reqOpts.data = '[data]'
       break
 
     default:
@@ -69,9 +77,8 @@ module.exports = function (source, options) {
       }
   }
 
-  code.push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[form]'", 'form'))
+  code.push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[data]'", 'data'))
     .blank()
-
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
     .push(1, 'console.log(response.data);')
     .push('}).catch(%s', 'function (error) {')
