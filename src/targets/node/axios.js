@@ -17,14 +17,11 @@ module.exports = function (source, options) {
   const opts = Object.assign({
     indent: '  '
   }, options)
-
+  
+  var includeFS = false
   const code = new CodeBuilder(opts.indent)
 
   code.push('var axios = require("axios");')
-
-  if (source.postData.params && source.postData.params.some(function (param) { return param.fileName; })) {
-    code.push('var fs = require("fs");')
-  }
 
   const reqOpts = {
     method: source.method,
@@ -74,13 +71,15 @@ module.exports = function (source, options) {
     case 'multipart/form-data':
       delete reqOpts.headers['Content-Type']
       delete reqOpts.headers['content-type'] // content-type header will come from the data.getHeaders() with the right boundary
-      reqOpts.headers.placeholderapid = 'placeholderapid'
-      code.push('var FormData = require("form-data");')
+      reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
+
+      code.unshift('var FormData = require("form-data");')
         .blank()
         .push('var data = new FormData();')
 
       source.postData.params.forEach(function (param) {
         if (param.fileName) {
+          includeFS = true
           code.push('data.append(%s, fs.createReadStream("/PATH/TO/%s"));', JSON.stringify(param.name), param.fileName)
         } else {
           const value = param.value !== undefined ? param.value.toString() : ''
@@ -106,9 +105,12 @@ module.exports = function (source, options) {
   }
 
   code.push('var options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
-    .replace("'[data]'", 'data').replace("placeholderapid: 'placeholderapid'", '...data.getHeaders()'))
+    .replace("'[data]'", 'data').replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
     .blank()
 
+  if (includeFS) {
+    code.unshift('var fs = require("fs");')
+  }
 
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
     .push(1, 'console.log(response.data);')

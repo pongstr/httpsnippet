@@ -63,7 +63,7 @@ module.exports = function (source, options) {
 
         if (param.fileName) {
           includeFS = true
-          code.push('formData.append(\'' + param.name + '\', fs.createReadStream(\'' + param.fileName + '\'));')
+          code.push('formData.append(\'' + param.name + '\', fs.createReadStream(\'/PATH/TO/' + param.fileName + '\'));')
         }
       })
       break
@@ -107,7 +107,7 @@ module.exports = function (source, options) {
 
   return code.join()
     .replace(/'encodedParams'/, 'encodedParams')
-    .replace(/"fs\.createReadStream\(\\"(.+)\\"\)"/, 'fs.createReadStream("$1")')
+    .replace(/"fs\.createReadStream\(\\"(.+)\\"\)"/, 'fs.createReadStream("/PATH/TO/$1")')
 }
 
 module.exports.info = {
