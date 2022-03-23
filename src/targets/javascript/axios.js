@@ -49,7 +49,8 @@ module.exports = function (source, options) {
       break
 
     case 'multipart/form-data':
-      // content-type header will come from the data.getHeaders() with the right boundary
+      // when a web api's form-data is sent in a request, application/form-data media type is automatically inserted
+      // into the headers with the right boundary
       reqOpts.headers = removeProperty(reqOpts.headers, 'content-type') 
 
       code.push('const data = new FormData();')
