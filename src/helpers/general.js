@@ -14,8 +14,14 @@ module.exports = {
     if (key) {
       return omit(originalObject, key);
     } else {
-      console.warn(`Property with name ${propertyName} was not found`);
       return originalObject;
     }
+  },
+
+  checkIfRequestContainsFile: (request) => {
+    return (
+      request.postData.mimeType === "multipart/form-data" &&
+      request.postData.params.some((param) => param.fileName)
+    );
   },
 };

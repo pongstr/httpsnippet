@@ -12,17 +12,21 @@
 const util = require('util')
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
-const { removeProperty } = require('../../helpers/general')
+const { removeProperty, checkIfRequestContainsFile } = require('../../helpers/general')
+const { constructAppendedParamsCode } = require('../../helpers/params')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
     indent: '  '
   }, options)
   
-  var includeFS = false
-  const code = new CodeBuilder(opts.indent)
+  let code = new CodeBuilder(opts.indent)
 
-  code.push('var axios = require("axios");')
+  if (checkIfRequestContainsFile(source)) {
+    code.push('const fs = require("fs");')
+  }
+
+  code.push('const axios = require("axios");')
 
   const reqOpts = {
     method: source.method,
@@ -38,80 +42,50 @@ module.exports = function (source, options) {
   }
 
   switch (source.postData.mimeType) {
-    case 'application/json':
-      code.blank();
+    case 'application/json': {
       if (source.postData.jsonObj) {
-        reqOpts.data = source.postData.jsonObj
+        reqOpts.data = JSON.stringify(source.postData.jsonObj)
       }
       break
+    }
 
-    case 'application/x-www-form-urlencoded':
-      code.push('var qs = require("qs");')
-        .blank()
-        .push('var data = qs.stringify({')
+    case 'application/x-www-form-urlencoded': {
+      code.blank()
+        .push('const encodedParams = new URLSearchParams();')
+      code = constructAppendedParamsCode(source.postData.params, code, false, 'encodedParams')
 
-      source.postData.params.forEach(function (param, index, arr) {
-        const value = param.value !== undefined ? param.value : ''
-        const isLast = index === arr.length - 1
-        
-        code.push(
-          '%s%s: %s%s',
-          opts.indent,
-          JSON.stringify(param.name),
-          JSON.stringify(value),
-          isLast ? '' : ','
-        )
-      })
+      reqOpts.data = 'encodedParams'
 
-      code.push('});')
-        .blank()
-
-      reqOpts.data = '[data]'
       break
+    }
       
-    case 'multipart/form-data':
+    case 'multipart/form-data': {
       // content-type header will come from the data.getHeaders() with the right boundary
       reqOpts.headers = removeProperty(reqOpts.headers, 'content-type') 
       reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
 
-      code.unshift('var FormData = require("form-data");')
+      code.unshift('const FormData = require("form-data");')
         .blank()
-        .push('var data = new FormData();')
+        .push('const data = new FormData();')
+      code = constructAppendedParamsCode(source.postData.params, code, false, 'data')
 
-      source.postData.params.forEach(function (param) {
-        if (param.fileName) {
-          includeFS = true
-          code.push('data.append(%s, fs.createReadStream("/PATH/TO/%s"));', JSON.stringify(param.name), param.fileName)
-        } else {
-          const value = param.value !== undefined ? param.value.toString() : ''
+      reqOpts.data = 'data'
 
-          code.push(
-            'data.append(%s, %s);',
-            JSON.stringify(param.name),
-            JSON.stringify(value)
-          )
-        }
-      })
-
-      code.blank()
-
-      reqOpts.data = '[data]'
       break
+    }
 
-    default:
-      code.blank()
+    default: {
       if (source.postData.text) {
         reqOpts.data = source.postData.text
       }
+    }
   }
 
-  code.push('var options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
-    .replace("'[data]'", 'data').replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
+  code.blank()
+    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
+      .replace(/'encodedParams'/, 'encodedParams').replace(/'data'/, 'data')
+      .replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
     .blank()
-
-  if (includeFS) {
-    code.unshift('var fs = require("fs");')
-  }
 
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
     .push(1, 'console.log(response.data);')

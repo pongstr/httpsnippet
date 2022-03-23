@@ -12,15 +12,19 @@
 
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
-const { removeProperty } = require('../../helpers/general')
+const { removeProperty, checkIfRequestContainsFile } = require('../../helpers/general')
+const { constructAppendedParamsCode } = require('../../helpers/params')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
     indent: '  '
   }, options)
 
-  let includeFS = false
-  const code = new CodeBuilder(opts.indent)
+  let code = new CodeBuilder(opts.indent)
+
+  if (checkIfRequestContainsFile(source)) {
+    code.push('const fs = require("fs");')
+  }
 
   code.push('const fetch = require(\'node-fetch\');')
   const url = source.fullUrl
@@ -33,53 +37,44 @@ module.exports = function (source, options) {
   }
 
   switch (source.postData.mimeType) {
-    case 'application/x-www-form-urlencoded':
-      code.unshift('const { URLSearchParams } = require(\'url\');')
-      code.push('const encodedParams = new URLSearchParams();')
-
-      if (source.postData.params.length) {
-        code.blank()
-      }
-
-      source.postData.params.forEach(function (param) {
-        code.push('encodedParams.set(\'' + param.name + '\', \'' + param.value + '\');')
-      })
-
-      reqOpts.body = 'encodedParams'
-      break
-
-    case 'application/json':
+    case 'application/json': {
       if (source.postData.jsonObj) {
         reqOpts.body = JSON.stringify(source.postData.jsonObj)
       }
       break
+    }
 
-    case 'multipart/form-data':
+    case 'application/x-www-form-urlencoded': {
+      code.blank()
+        .push('const encodedParams = new URLSearchParams();')
+
+      code = constructAppendedParamsCode(source.postData.params, code, false, 'encodedParams')
+
+      reqOpts.body = 'encodedParams'
+      break
+    }
+
+    case 'multipart/form-data': {
       // content-type header will come from the data.getHeaders() with the right boundary
       reqOpts.headers = removeProperty(reqOpts.headers, 'content-type')
       reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
 
       code.unshift('const FormData = require(\'form-data\');')
-      code.push('const data = new FormData();')
       code.blank()
+        .push('const data = new FormData();')
 
-      source.postData.params.forEach(function (param) {
-        if (!param.fileName && !param.fileName && !param.contentType) {
-          code.push('data.append(\'' + param.name + '\', \'' + param.value + '\');')
-          return
-        }
+      code = constructAppendedParamsCode(source.postData.params, code, false, 'data')
 
-        if (param.fileName) {
-          includeFS = true
-          code.push('data.append(\'' + param.name + '\', fs.createReadStream(\'/PATH/TO/' + param.fileName + '\'));')
-        }
-      })
+      reqOpts.body = 'data'
+
       break
+    }
 
-    default:
+    default: {
       if (source.postData.text) {
         reqOpts.body = source.postData.text
       }
+    }
   }
 
   // construct cookies argument
@@ -96,27 +91,18 @@ module.exports = function (source, options) {
     }
   }
   code.blank()
-  code.push('let url = \'' + url + '\';')
+  code.push('const url = \'' + url + '\';')
     .blank()
-  code.push('let options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
-    .replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
+    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
+      .replace(/'encodedParams'/, 'encodedParams').replace(/'data'/, 'data')
+      .replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
     .blank()
-
-  if (includeFS) {
-    code.unshift('const fs = require(\'fs\');')
-  }
-  if (source.postData.mimeType === 'multipart/form-data') {
-    code.push('options.body = data;')
-      .blank()
-  }
-  code.push('fetch(url, options)')
+    .push('fetch(url, options)')
     .push(1, '.then(res => res.json())')
     .push(1, '.then(json => console.log(json))')
     .push(1, '.catch(err => console.error(\'error:\' + err));')
 
   return code.join()
-    .replace(/'encodedParams'/, 'encodedParams')
-    .replace(/"fs\.createReadStream\(\\"(.+)\\"\)"/, 'fs.createReadStream("/PATH/TO/$1")')
 }
 
 module.exports.info = {

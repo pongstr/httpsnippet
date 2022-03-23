@@ -13,16 +13,17 @@ const util = require('util')
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
 const { removeProperty } = require('../../helpers/general')
+const { constructAppendedParamsCode } = require('../../helpers/params')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
     indent: '  '
   }, options)
 
-  const code = new CodeBuilder(opts.indent)
+  let code = new CodeBuilder(opts.indent)
+
 
   code.push('import axios from "axios";')
-    .blank()
 
   const reqOpts = {
     method: source.method,
@@ -38,48 +39,46 @@ module.exports = function (source, options) {
   }
 
   switch (source.postData.mimeType) {
-    case 'application/x-www-form-urlencoded':
-      reqOpts.data = source.postData.paramsObj
-      break
-
-    case 'application/json':
+    case 'application/json': {
       if (source.postData.jsonObj) {
-        reqOpts.data = source.postData.jsonObj
+        reqOpts.data = JSON.stringify(source.postData.jsonObj)
       }
       break
+    }
 
-    case 'multipart/form-data':
+    case 'application/x-www-form-urlencoded': {
+      code.blank()
+        .push('const data = new URLSearchParams();')
+      
+      code = constructAppendedParamsCode(source.postData.params, code, true)
+
+      reqOpts.data = '[data]'
+      break
+    }
+
+    case 'multipart/form-data': {
       // when a web api's form-data is sent in a request, application/form-data media type is automatically inserted
       // into the headers with the right boundary
       reqOpts.headers = removeProperty(reqOpts.headers, 'content-type') 
 
-      code.push('const data = new FormData();')
-
-      source.postData.params.forEach(function (param) {
-        if (param.fileName) {
-          code.push('data.append(%s, yourAppInput.files[0], %s);', JSON.stringify(param.name), JSON.stringify(param.fileName))
-        } else {
-          const value = param.value !== undefined ? param.value.toString() : ''        
-          code.push(
-            'data.append(%s, %s);',
-            JSON.stringify(param.name),
-            JSON.stringify(value)
-          )
-        }
-      })
-
       code.blank()
+        .push('const data = new FormData();')
+
+      code = constructAppendedParamsCode(source.postData.params, code, true)
 
       reqOpts.data = '[data]'
       break
+    }
 
-    default:
+    default: {
       if (source.postData.text) {
         reqOpts.data = source.postData.text
       }
+    }
   }
 
-  code.push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[data]'", 'data'))
+  code.blank()
+    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[data]'", 'data'))
     .blank()
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
     .push(1, 'console.log(response.data);')
