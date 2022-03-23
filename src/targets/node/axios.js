@@ -12,6 +12,7 @@
 const util = require('util')
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
+const { removeProperty } = require('../../helpers/general')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
@@ -69,8 +70,8 @@ module.exports = function (source, options) {
       break
       
     case 'multipart/form-data':
-      delete reqOpts.headers['Content-Type']
-      delete reqOpts.headers['content-type'] // content-type header will come from the data.getHeaders() with the right boundary
+      // content-type header will come from the data.getHeaders() with the right boundary
+      reqOpts.headers = removeProperty(reqOpts.headers, 'content-type') 
       reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
 
       code.unshift('var FormData = require("form-data");')
