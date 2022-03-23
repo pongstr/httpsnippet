@@ -12,6 +12,7 @@
 
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
+const { removeProperty } = require('../../helpers/general')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
@@ -35,7 +36,10 @@ module.exports = function (source, options) {
     case 'application/x-www-form-urlencoded':
       code.unshift('const { URLSearchParams } = require(\'url\');')
       code.push('const encodedParams = new URLSearchParams();')
-      code.blank()
+
+      if (source.postData.params.length) {
+        code.blank()
+      }
 
       source.postData.params.forEach(function (param) {
         code.push('encodedParams.set(\'' + param.name + '\', \'' + param.value + '\');')
@@ -51,19 +55,23 @@ module.exports = function (source, options) {
       break
 
     case 'multipart/form-data':
+      // content-type header will come from the data.getHeaders() with the right boundary
+      reqOpts.headers = removeProperty(reqOpts.headers, 'content-type')
+      reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
+
       code.unshift('const FormData = require(\'form-data\');')
-      code.push('const formData = new FormData();')
+      code.push('const data = new FormData();')
       code.blank()
 
       source.postData.params.forEach(function (param) {
         if (!param.fileName && !param.fileName && !param.contentType) {
-          code.push('formData.append(\'' + param.name + '\', \'' + param.value + '\');')
+          code.push('data.append(\'' + param.name + '\', \'' + param.value + '\');')
           return
         }
 
         if (param.fileName) {
           includeFS = true
-          code.push('formData.append(\'' + param.name + '\', fs.createReadStream(\'/PATH/TO/' + param.fileName + '\'));')
+          code.push('data.append(\'' + param.name + '\', fs.createReadStream(\'/PATH/TO/' + param.fileName + '\'));')
         }
       })
       break
@@ -90,14 +98,15 @@ module.exports = function (source, options) {
   code.blank()
   code.push('let url = \'' + url + '\';')
     .blank()
-  code.push('let options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }))
+  code.push('let options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
+    .replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
     .blank()
 
   if (includeFS) {
     code.unshift('const fs = require(\'fs\');')
   }
   if (source.postData.mimeType === 'multipart/form-data') {
-    code.push('options.body = formData;')
+    code.push('options.body = data;')
       .blank()
   }
   code.push('fetch(url, options)')
