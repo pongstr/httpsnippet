@@ -50,7 +50,6 @@ module.exports = function (source, options) {
       code.blank();
 
       options.body = 'encodedParams'
-
       break
     }
 
@@ -64,7 +63,6 @@ module.exports = function (source, options) {
       code.blank()
 
       options.body = 'data';
-
       break
     }
 

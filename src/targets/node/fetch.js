@@ -66,7 +66,6 @@ module.exports = function (source, options) {
       code = constructAppendedParamsCode(source.postData.params, code, false, 'data')
 
       reqOpts.body = 'data'
-
       break
     }
 

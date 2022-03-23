@@ -48,11 +48,11 @@ module.exports = function (source, options) {
 
     case 'application/x-www-form-urlencoded': {
       code.blank()
-        .push('const data = new URLSearchParams();')
+        .push('const encodedParams = new URLSearchParams();')
       
-      code = constructAppendedParamsCode(source.postData.params, code, true)
+      code = constructAppendedParamsCode(source.postData.params, code, true, 'encodedParams')
 
-      reqOpts.data = '[data]'
+      reqOpts.data = 'encodedParams'
       break
     }
 
@@ -66,7 +66,7 @@ module.exports = function (source, options) {
 
       code = constructAppendedParamsCode(source.postData.params, code, true)
 
-      reqOpts.data = '[data]'
+      reqOpts.data = 'data'
       break
     }
 
@@ -78,7 +78,8 @@ module.exports = function (source, options) {
   }
 
   code.blank()
-    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }).replace("'[data]'", 'data'))
+    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
+      .replace(/'encodedParams'/, 'encodedParams').replace(/'data'/, 'data'))
     .blank()
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))
     .push(1, 'console.log(response.data);')
