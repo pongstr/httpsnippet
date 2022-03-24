@@ -1,5 +1,6 @@
 'use strict'
 
+const { cloneDeep } = require('lodash')
 const util = require('util')
 
 /**
@@ -98,6 +99,10 @@ CodeBuilder.prototype.blank = function () {
  */
 CodeBuilder.prototype.join = function () {
   return this.code.join(this.lineJoin)
+}
+
+CodeBuilder.prototype.clone = function() {
+  return cloneDeep(this);
 }
 
 module.exports = CodeBuilder

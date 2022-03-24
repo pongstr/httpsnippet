@@ -46,7 +46,7 @@ module.exports = function (source, options) {
 
     case 'application/x-www-form-urlencoded': {
       code.push('const encodedParams = new URLSearchParams();')
-      code = constructAppendedParamsCode(source.postData.params, code, true, 'encodedParams')
+      code = constructAppendedParamsCode(code, source.postData.params, { isBrowser: true, dataVarName: 'encodedParams' })
       code.blank();
 
       options.body = 'encodedParams'
@@ -59,7 +59,7 @@ module.exports = function (source, options) {
       options.headers = removeProperty(options.headers, 'content-type') 
 
       code.push('const data = new FormData();')
-      code = constructAppendedParamsCode(source.postData.params, code, true, 'data')
+      code = constructAppendedParamsCode(code, source.postData.params, { isBrowser: true, dataVarName: 'data' })
       code.blank()
 
       options.body = 'data';
