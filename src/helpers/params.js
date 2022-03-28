@@ -1,3 +1,7 @@
+const { isArray } = require("lodash");
+
+const CodeBuilder = require("./code-builder");
+
 const defaultConstructParamsCodeOptions = {
   isBrowser: false,
   dataVarName: "data",
@@ -18,6 +22,12 @@ module.exports = {
     params = [],
     options = defaultConstructParamsCodeOptions
   ) => {
+    if (!(code instanceof CodeBuilder)) {
+      throw new Error("code argument must be an instance of CodeBuilder");
+    } else if (!isArray(params)) {
+      throw new Error("params argument must be an array");
+    }
+
     const { isBrowser = false, dataVarName = "data" } = options;
     const newCode = code.clone();
 
