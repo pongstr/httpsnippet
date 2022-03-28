@@ -29,7 +29,12 @@ describe("Test helpers methods", () => {
   });
 
   describe("Test constructAppendedParamsCode helper", () => {
-    it("constructAppendedParamsCode called with invalid code argument", () => {
+    const fakeParams = [
+      { name: "a", value: "1" },
+      { name: "b", value: "2" },
+    ];
+
+    it("called with invalid code argument", () => {
       (function () {
         constructAppendedParamsCode({}, []);
       }.should.throw(
@@ -37,18 +42,67 @@ describe("Test helpers methods", () => {
       ));
     });
 
-    it("constructAppendedParamsCode called with invalid params argument", () => {
+    it("called with invalid params argument", () => {
       (function () {
         constructAppendedParamsCode(new CodeBuilder(), {});
       }.should.throw(new Error("params argument must be an array")));
     });
 
-    it("returned new code object with two params", () => {
-      const params = [
-        { name: "a", value: "1" },
-        { name: "b", value: "2" },
+    describe("called with multiple options variations", () => {
+      const fakeParamsWithFile = [
+        ...fakeParams,
+        { name: "a", fileName: "fakeFileName" },
       ];
-      const result = constructAppendedParamsCode(new CodeBuilder(), params);
+      const lastIndex = params.length - 1;
+
+      it("called with file param and false isBrowser option", () => {
+        const result = constructAppendedParamsCode(
+          new CodeBuilder(),
+          fakeParamsWithFile,
+          {
+            isBrowser: false,
+          }
+        );
+
+        result.should.be.an.instanceof(CodeBuilder);
+        result
+          .join()
+          .should.containEql(
+            `fs.createReadStream("/PATH/TO/${fakeParamsWithFile[lastIndex].fileName}")`
+          );
+      });
+
+      it("called with file param and true isBrowser option", () => {
+        const result = constructAppendedParamsCode(
+          new CodeBuilder(),
+          fakeParamsWithFile,
+          {
+            isBrowser: true,
+          }
+        );
+
+        result.should.be.an.instanceof(CodeBuilder);
+        result
+          .join()
+          .should.containEql(
+            `yourAppInput.files[0], ${JSON.stringify(
+              params[lastIndex].fileName
+            )}`
+          );
+      });
+
+      it("called with dataVarName option", () => {
+        const result = constructAppendedParamsCode(new CodeBuilder(), params, {
+          dataVarName: "dataObject",
+        });
+
+        result.should.be.an.instanceof(CodeBuilder);
+        result.join().should.containEql("dataObject.append");
+      });
+    });
+
+    it("returned new code object with two params", () => {
+      const result = constructAppendedParamsCode(new CodeBuilder(), fakeParams);
 
       result.should.be.an.instanceof(CodeBuilder);
       result.getLength().should.equal(2);
