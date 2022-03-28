@@ -12,16 +12,21 @@
 const util = require('util')
 const stringifyObject = require('stringify-object')
 const CodeBuilder = require('../../helpers/code-builder')
+const { removeProperty, checkIfRequestContainsFile } = require('../../helpers/general')
+const { constructAppendedParamsCode } = require('../../helpers/params')
 
 module.exports = function (source, options) {
   const opts = Object.assign({
     indent: '  '
   }, options)
+  
+  let code = new CodeBuilder(opts.indent)
 
-  const code = new CodeBuilder(opts.indent)
+  if (checkIfRequestContainsFile(source)) {
+    code.push('const fs = require("fs");')
+  }
 
-  code.push('var axios = require("axios").default;')
-    .blank()
+  code.push('const axios = require("axios");')
 
   const reqOpts = {
     method: source.method,
@@ -37,23 +42,47 @@ module.exports = function (source, options) {
   }
 
   switch (source.postData.mimeType) {
-    case 'application/x-www-form-urlencoded':
-      reqOpts.data = source.postData.paramsObj
-      break
-
-    case 'application/json':
+    case 'application/json': {
       if (source.postData.jsonObj) {
-        reqOpts.data = source.postData.jsonObj
+        reqOpts.data = JSON.stringify(source.postData.jsonObj)
       }
       break
+    }
 
-    default:
+    case 'application/x-www-form-urlencoded': {
+      code.blank()
+        .push('const encodedParams = new URLSearchParams();')
+      code = constructAppendedParamsCode(code, source.postData.params, { isBrowser: false, dataVarName: 'encodedParams' })
+
+      reqOpts.data = 'encodedParams'
+      break
+    }
+      
+    case 'multipart/form-data': {
+      // content-type header will come from the data.getHeaders() with the right boundary
+      reqOpts.headers = removeProperty(reqOpts.headers, 'content-type') 
+      reqOpts.headers.placeholderGetHeaders = 'placeholderGetHeaders'
+
+      code.unshift('const FormData = require("form-data");')
+        .blank()
+        .push('const data = new FormData();')
+      code = constructAppendedParamsCode(code, source.postData.params, { isBrowser: false, dataVarName: 'data' })
+
+      reqOpts.data = 'data'
+      break
+    }
+
+    default: {
       if (source.postData.text) {
         reqOpts.data = source.postData.text
       }
+    }
   }
 
-  code.push('var options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 }))
+  code.blank()
+    .push('const options = %s;', stringifyObject(reqOpts, { indent: '  ', inlineCharacterLimit: 80 })
+      .replace(/'encodedParams'/, 'encodedParams').replace(/'data'/, 'data')
+      .replace("placeholderGetHeaders: 'placeholderGetHeaders'", '...data.getHeaders()'))
     .blank()
 
   code.push(util.format('axios.request(options).then(%s', 'function (response) {'))

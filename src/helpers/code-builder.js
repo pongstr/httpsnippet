@@ -1,6 +1,7 @@
-'use strict'
+"use strict";
 
-const util = require('util')
+const { cloneDeep } = require("lodash");
+const util = require("util");
 
 /**
  * Helper object to format and aggragate lines of code.
@@ -12,10 +13,10 @@ const util = require('util')
  * @param {string} join Desired character to join each line of code
  */
 const CodeBuilder = function (indentation, join) {
-  this.code = []
-  this.indentation = indentation
-  this.lineJoin = join || '\n'
-}
+  this.code = [];
+  this.indentation = indentation;
+  this.lineJoin = join || "\n";
+};
 
 /**
  * Add given indentation level to given string and format the string (variadic)
@@ -37,26 +38,26 @@ const CodeBuilder = function (indentation, join) {
  *   // returns: 'console.log("\t\thello world")'
  */
 CodeBuilder.prototype.buildLine = function (indentationLevel, line) {
-  let lineIndentation = ''
-  let slice = 2
-  if (Object.prototype.toString.call(indentationLevel) === '[object String]') {
-    slice = 1
-    line = indentationLevel
-    indentationLevel = 0
+  let lineIndentation = "";
+  let slice = 2;
+  if (Object.prototype.toString.call(indentationLevel) === "[object String]") {
+    slice = 1;
+    line = indentationLevel;
+    indentationLevel = 0;
   } else if (indentationLevel === null) {
-    return null
+    return null;
   }
 
   while (indentationLevel) {
-    lineIndentation += this.indentation
-    indentationLevel--
+    lineIndentation += this.indentation;
+    indentationLevel--;
   }
 
-  const format = Array.prototype.slice.call(arguments, slice, arguments.length)
-  format.unshift(lineIndentation + line)
+  const format = Array.prototype.slice.call(arguments, slice, arguments.length);
+  format.unshift(lineIndentation + line);
 
-  return util.format.apply(this, format)
-}
+  return util.format.apply(this, format);
+};
 
 /**
  * Invoke buildLine() and add the line at the top of current lines
@@ -65,10 +66,10 @@ CodeBuilder.prototype.buildLine = function (indentationLevel, line) {
  * @return {this}
  */
 CodeBuilder.prototype.unshift = function () {
-  this.code.unshift(this.buildLine.apply(this, arguments))
+  this.code.unshift(this.buildLine.apply(this, arguments));
 
-  return this
-}
+  return this;
+};
 
 /**
  * Invoke buildLine() and add the line at the bottom of current lines
@@ -77,27 +78,35 @@ CodeBuilder.prototype.unshift = function () {
  * @return {this}
  */
 CodeBuilder.prototype.push = function () {
-  this.code.push(this.buildLine.apply(this, arguments))
+  this.code.push(this.buildLine.apply(this, arguments));
 
-  return this
-}
+  return this;
+};
 
 /**
  * Add an empty line at the end of current lines
  * @return {this}
  */
 CodeBuilder.prototype.blank = function () {
-  this.code.push(null)
+  this.code.push(null);
 
-  return this
-}
+  return this;
+};
 
 /**
  * Concatenate all current lines using the given lineJoin
  * @return {string}
  */
 CodeBuilder.prototype.join = function () {
-  return this.code.join(this.lineJoin)
-}
+  return this.code.join(this.lineJoin);
+};
 
-module.exports = CodeBuilder
+CodeBuilder.prototype.clone = function () {
+  return cloneDeep(this);
+};
+
+CodeBuilder.prototype.getLength = function () {
+  return this.code.length;
+};
+
+module.exports = CodeBuilder;
