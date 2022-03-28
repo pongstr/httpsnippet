@@ -19,9 +19,10 @@ describe("Test helpers methods", () => {
 
       result.should.equal(obj);
     });
-    it("property removed from object successfully", () => {
+
+    it("insensitive case property removed from object successfully", () => {
       const obj = { a: 1, b: 2 };
-      const result = removeProperty(obj, "b");
+      const result = removeProperty(obj, "B");
 
       result.should.deepEqual(omit(obj, "b"));
     });
