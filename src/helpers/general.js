@@ -1,12 +1,4 @@
-const { omit, isArray } = require("lodash");
-
-const checkIfAnObject = (variableToCheck) => {
-  return !(
-    typeof variableToCheck !== "object" ||
-    variableToCheck === null ||
-    isArray(variableToCheck)
-  );
-};
+const { omit, isObject } = require("lodash");
 
 module.exports = {
   /**
@@ -16,7 +8,7 @@ module.exports = {
    * @returns the object without the property that was asked to remove
    */
   removeProperty: (originalObject, propertyName) => {
-    if (!checkIfAnObject(originalObject)) {
+    if (!isObject(originalObject)) {
       throw new Error("originalObject must be an object.");
     }
     const key = Object.keys(originalObject).find(

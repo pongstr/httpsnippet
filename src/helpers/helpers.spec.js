@@ -44,11 +44,17 @@ describe("Test helpers methods", () => {
     });
 
     it("returned new code object with two params", () => {
-      const params = [{ value: "1" }, { value: "2" }];
+      const params = [
+        { name: "a", value: "1" },
+        { name: "b", value: "2" },
+      ];
       const result = constructAppendedParamsCode(new CodeBuilder(), params);
 
       result.should.be.an.instanceof(CodeBuilder);
       result.getLength().should.equal(2);
+      result
+        .join()
+        .should.equal('data.append("a", "1");\ndata.append("b", "2");');
     });
   });
 });
