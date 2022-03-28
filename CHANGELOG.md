@@ -1,3 +1,7 @@
+## [2.0.15](https://github.com/RapidAPI/httpsnippet/compare/v2.0.14...v2.0.15) (2022-03-28)
+
+
+
 ## [2.0.14](https://github.com/RapidAPI/httpsnippet/compare/v2.0.13...v2.0.14) (2022-03-28)
 
 
@@ -11,10 +15,6 @@
 
 
 ## [2.0.11](https://github.com/RapidAPI/httpsnippet/compare/v2.0.10...v2.0.11) (2022-03-17)
-
-
-
-## [2.0.10](https://github.com/RapidAPI/httpsnippet/compare/v2.0.9...v2.0.10) (2022-03-17)
 
 
 
