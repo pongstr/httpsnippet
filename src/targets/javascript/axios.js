@@ -64,7 +64,7 @@ module.exports = function (source, options) {
       code.blank()
         .push('const data = new FormData();')
 
-      code = constructAppendedParamsCode(code, source.postData.params, code, { isBrowser: true, dataVarName: 'data' })
+      code = constructAppendedParamsCode(code, source.postData.params, { isBrowser: true, dataVarName: 'data' })
 
       reqOpts.data = 'data'
       break
