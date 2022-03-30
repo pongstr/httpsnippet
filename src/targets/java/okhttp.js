@@ -10,6 +10,7 @@
 
 'use strict'
 
+const _ = require('lodash')
 const CodeBuilder = require('../../helpers/code-builder')
 
 module.exports = function (source, options) {
@@ -26,17 +27,43 @@ module.exports = function (source, options) {
   code.push('OkHttpClient client = new OkHttpClient();')
     .blank()
 
-  if (source.postData.text) {
-    if (source.postData.boundary) {
-      code.push('MediaType mediaType = MediaType.parse("%s; boundary=%s");', source.postData.mimeType, source.postData.boundary)
-    } else {
-      code.push('MediaType mediaType = MediaType.parse("%s");', source.postData.mimeType)
-    }
-    code.push('RequestBody body = RequestBody.create(mediaType, %s);', JSON.stringify(source.postData.text))
+  if (source.postData.mimeType === 'multipart/form-data') {
+    code.push('RequestBody body = new MultipartBody.Builder()')
+      .push(1, '.setType(MultipartBody.FORM)')
+
+    source.postData.params.forEach((param) => {
+      if (param.fileName) {
+        code.push(1, '.addFormDataPart(%s, %s,', JSON.stringify(param.name), JSON.stringify(param.fileName))
+          .push(2, 'RequestBody.create(MediaType.parse("text/plain"), fileInput))')
+      } else {
+        const value = JSON.stringify(param.value.toString()) || ""
+        code.push(1, '.addFormDataPart(%s, %s)', JSON.stringify(param.name), value)
+      }
+    })
+    
+    code.push(1, '.build();')
+  } else if (source.postData.mimeType === 'application/x-www-form-urlencoded') {
+    code.push('RequestBody body = new FormBody.Builder()')
+    
+    source.postData.params.forEach((param) => {
+      const value = JSON.stringify(param.value.toString()) || ""
+      code.push(1, '.add(%s, %s)', JSON.stringify(param.name), value)
+    })
+
+    code.push(1, '.build();')
+  } else if (source.postData.text) {
+    code.push('MediaType mediaType = MediaType.parse("%s");', source.postData.mimeType)
+      .push('String value = %s;', JSON.stringify(source.postData.text))
+      .push('RequestBody body = RequestBody.create(mediaType, value);')
+  }
+
+  if (source.postData.params) {
+    code.blank()
   }
 
   code.push('Request request = new Request.Builder()')
-  code.push(1, '.url("%s")', source.fullUrl)
+    .push(1, '.url("%s")', source.fullUrl)
+  
   if (methods.indexOf(source.method.toUpperCase()) === -1) {
     if (source.postData.text) {
       code.push(1, '.method("%s", body)', source.method.toUpperCase())
@@ -53,15 +80,10 @@ module.exports = function (source, options) {
     code.push(1, '.%s()', source.method.toLowerCase())
   }
 
-  // Add headers, including the cookies
-  const headers = Object.keys(source.allHeaders)
-
   // construct headers
-  if (headers.length) {
-    headers.forEach(function (key) {
-      code.push(1, '.addHeader("%s", "%s")', key, source.allHeaders[key])
-    })
-  }
+  _(source.allHeaders)
+    .pickBy((value, key) => !(value.toLowerCase().includes('multipart/form-data'))) // Remove content type header if form-data
+    .forEach((value, key) => { code.push(1, '.addHeader("%s", "%s")', key, value) })
 
   code.push(1, '.build();')
     .blank()
