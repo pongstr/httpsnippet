@@ -1,14 +1,13 @@
 {
   "version": "2.0.16",
-  "name": "@rapidapi/httpsnippet",
+  "name": "@pongstr/httpsnippet",
   "description": "HTTP Request snippet generator for *most* languages",
   "author": "Ahmad Nassri <ahmad@mashape.com> (https://www.mashape.com/)",
   "homepage": "https://github.com/Mashape/httpsnippet",
   "license": "MIT",
   "browser": "dist/httpsnippet.js",
-  "bin": "bin/httpsnippet",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+  "bin": {
+    "httpsnippet": "bin/httpsnippet"
   },
   "keywords": [
     "api",
@@ -47,9 +46,12 @@
     "bin",
     "src"
   ],
-  "repository": "RapidAPI/httpsnippet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pongstr/httpsnippet.git"
+  },
   "bugs": {
-    "url": "https://github.com/RapidAPI/httpsnippet/issues"
+    "url": "https://github.com/pongstr/httpsnippet/issues"
   },
   "scripts": {
     "quick": "mocha --no-timeouts --fgrep 'Request Validation' --invert",
@@ -96,5 +98,9 @@
     "lodash": "^4.17.15",
     "pinkie-promise": "^2.0.0",
     "stringify-object": "^3.3.0"
+  },
+  "main": "dist/httpsnippet.js",
+  "directories": {
+    "test": "test"
   }
 }
