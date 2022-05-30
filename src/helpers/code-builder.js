@@ -1,7 +1,5 @@
 "use strict";
-
-const { cloneDeep } = require("lodash");
-const util = require("util");
+var util = require("./util");
 
 /**
  * Helper object to format and aggragate lines of code.
@@ -12,7 +10,7 @@ const util = require("util");
  * @param {string} indentation Desired indentation character for aggregated lines of code
  * @param {string} join Desired character to join each line of code
  */
-const CodeBuilder = function (indentation, join) {
+var CodeBuilder = function (indentation, join) {
   this.code = [];
   this.indentation = indentation;
   this.lineJoin = join || "\n";
@@ -38,8 +36,8 @@ const CodeBuilder = function (indentation, join) {
  *   // returns: 'console.log("\t\thello world")'
  */
 CodeBuilder.prototype.buildLine = function (indentationLevel, line) {
-  let lineIndentation = "";
-  let slice = 2;
+  var lineIndentation = "";
+  var slice = 2;
   if (Object.prototype.toString.call(indentationLevel) === "[object String]") {
     slice = 1;
     line = indentationLevel;
@@ -53,9 +51,8 @@ CodeBuilder.prototype.buildLine = function (indentationLevel, line) {
     indentationLevel--;
   }
 
-  const format = Array.prototype.slice.call(arguments, slice, arguments.length);
+  var format = Array.prototype.slice.call(arguments, slice, arguments.length);
   format.unshift(lineIndentation + line);
-
   return util.format.apply(this, format);
 };
 
@@ -99,14 +96,6 @@ CodeBuilder.prototype.blank = function () {
  */
 CodeBuilder.prototype.join = function () {
   return this.code.join(this.lineJoin);
-};
-
-CodeBuilder.prototype.clone = function () {
-  return cloneDeep(this);
-};
-
-CodeBuilder.prototype.getLength = function () {
-  return this.code.length;
 };
 
 module.exports = CodeBuilder;
